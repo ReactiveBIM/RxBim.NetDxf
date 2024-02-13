@@ -9584,6 +9584,7 @@ namespace netDxf.IO
 
             // is polyline closed
             // poly.IsClosed = this.chunk.ReadShort() != 0; // code 73, this value must always be true
+            poly.IsClosed = true;
             this.chunk.Next();
 
             int numVertexes = this.chunk.ReadInt(); // code 93

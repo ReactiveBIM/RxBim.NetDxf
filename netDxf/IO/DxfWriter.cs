@@ -3295,7 +3295,8 @@ namespace netDxf.IO
             {
                 HatchBoundaryPath.Polyline poly = (HatchBoundaryPath.Polyline) entity;
                 this.chunk.Write(72, (short) 1); // Has bulge flag
-                this.chunk.Write(73, poly.IsClosed ? (short) 1 : (short) 0);
+                // this.chunk.Write(73, poly.IsClosed ? (short) 1 : (short) 0); // always closed
+                this.chunk.Write(73, (short) 1);
                 this.chunk.Write(93, poly.Vertexes.Length);
 
                 foreach (Vector3 vertex in poly.Vertexes)
