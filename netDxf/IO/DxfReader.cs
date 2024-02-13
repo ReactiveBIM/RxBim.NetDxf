@@ -166,7 +166,7 @@ namespace netDxf.IO
             {
 
 #if !NET4X
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 #endif
 
                 string dwgCodePage = CheckHeaderVariable(stream, HeaderVariableCode.DwgCodePage, out this.isBinary);

@@ -1,4 +1,5 @@
 #region netDxf library licensed under the MIT License
+
 // 
 //                       netDxf library
 // Copyright (c) Daniel Carvajal (haplokuon@gmail.com)
@@ -21,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
+
 #endregion
 
 using System;
@@ -38,9 +40,82 @@ namespace netDxf
         ICloneable,
         IEquatable<AciColor>
     {
+        #region private fields
+
+        private short _index;
+
+        #endregion
+
+        #region constants
+
+        /// <summary>
+        /// Gets the ByLayer color.
+        /// </summary>
+        public static AciColor ByLayer => new() { _index = 256 };
+
+        /// <summary>
+        /// Gets the ByBlock color.
+        /// </summary>
+        public static AciColor ByBlock => new() { _index = 0 };
+
+        /// <summary>
+        /// Defines a default red color.
+        /// </summary>
+        public static AciColor Red => new(1);
+
+        /// <summary>
+        /// Defines a default yellow color.
+        /// </summary>
+        public static AciColor Yellow => new(2);
+
+        /// <summary>
+        /// Defines a default green color.
+        /// </summary>
+        public static AciColor Green => new(3);
+
+        /// <summary>
+        /// Defines a default cyan color.
+        /// </summary>
+        public static AciColor Cyan => new(4);
+
+        /// <summary>
+        /// Defines a default blue color.
+        /// </summary>
+        public static AciColor Blue => new(5);
+
+        /// <summary>
+        /// Defines a default magenta color.
+        /// </summary>
+        public static AciColor Magenta => new(6);
+
+        /// <summary>
+        /// Defines a default white/black color.
+        /// </summary>
+        public static AciColor Default => new(7);
+
+        /// <summary>
+        /// Defines a default dark gray color.
+        /// </summary>
+        public static AciColor DarkGray => new(8);
+
+        /// <summary>
+        /// Defines a default light gray color.
+        /// </summary>
+        public static AciColor LightGray => new(9);
+
+
         #region list of the indexed colors
 
-        private static readonly IReadOnlyList<byte[]> indexRgb = new List<byte[]>
+        /// <summary>
+        /// A list that contains the indexed colors, the key represents the color index and the value the RGB components of the color.
+        /// </summary>
+        /// <remarks>
+        /// This is the AutoCad default ACI color index to RGB values table.
+        /// Changes in the actual view background color in AutoCad might produce changes in the RGB equivalents in some ACI color indexes,
+        /// specially the darkest ones.<br />
+        /// The color at index zero is not used, represents the RGB values for abstract colors such as ByLayer or ByBlock
+        /// </remarks>
+        public static IReadOnlyList<byte[]> IndexRgb { get; } = new List<byte[]>
         {
             new byte[] { 255, 255, 255 },
             new byte[] { 255, 0, 0 },
@@ -302,120 +377,6 @@ namespace netDxf
 
         #endregion
 
-        #region private fields
-
-        private short index;
-        private byte r;
-        private byte g;
-        private byte b;
-        private bool useTrueColor;
-
-        #endregion
-
-        #region constants
-
-        /// <summary>
-        /// Gets the ByLayer color.
-        /// </summary>
-        public static AciColor ByLayer
-        {
-            get { return new AciColor { index = 256 }; }
-        }
-
-        /// <summary>
-        /// Gets the ByBlock color.
-        /// </summary>
-        public static AciColor ByBlock
-        {
-            get { return new AciColor { index = 0 }; }
-        }
-
-        /// <summary>
-        /// Defines a default red color.
-        /// </summary>
-        public static AciColor Red
-        {
-            get { return new AciColor(1); }
-        }
-
-        /// <summary>
-        /// Defines a default yellow color.
-        /// </summary>
-        public static AciColor Yellow
-        {
-            get { return new AciColor(2); }
-        }
-
-        /// <summary>
-        /// Defines a default green color.
-        /// </summary>
-        public static AciColor Green
-        {
-            get { return new AciColor(3); }
-        }
-
-        /// <summary>
-        /// Defines a default cyan color.
-        /// </summary>
-        public static AciColor Cyan
-        {
-            get { return new AciColor(4); }
-        }
-
-        /// <summary>
-        /// Defines a default blue color.
-        /// </summary>
-        public static AciColor Blue
-        {
-            get { return new AciColor(5); }
-        }
-
-        /// <summary>
-        /// Defines a default magenta color.
-        /// </summary>
-        public static AciColor Magenta
-        {
-            get { return new AciColor(6); }
-        }
-
-        /// <summary>
-        /// Defines a default white/black color.
-        /// </summary>
-        public static AciColor Default
-        {
-            get { return new AciColor(7); }
-        }
-
-        /// <summary>
-        /// Defines a default dark gray color.
-        /// </summary>
-        public static AciColor DarkGray
-        {
-            get { return new AciColor(8); }
-        }
-
-        /// <summary>
-        /// Defines a default light gray color.
-        /// </summary>
-        public static AciColor LightGray
-        {
-            get { return new AciColor(9); }
-        }
-
-        /// <summary>
-        /// A list that contains the indexed colors, the key represents the color index and the value the RGB components of the color.
-        /// </summary>
-        /// <remarks>
-        /// This is the AutoCad default ACI color index to RGB values table.
-        /// Changes in the actual view background color in AutoCad might produce changes in the RGB equivalents in some ACI color indexes,
-        /// specially the darkest ones.<br />
-        /// The color at index zero is not used, represents the RGB values for abstract colors such as ByLayer or ByBlock
-        /// </remarks>
-        public static IReadOnlyList<byte[]> IndexRgb
-        {
-            get { return indexRgb; }
-        }
-
         #endregion
 
         #region constructors
@@ -433,7 +394,7 @@ namespace netDxf
         /// </summary>
         /// <param name="rgb">RGB components (input values range from 0 to 255). The array must contain three values.</param>
         /// <remarks>By default the UseTrueColor will be set to true.</remarks>
-        public AciColor(byte[] rgb)
+        public AciColor(IReadOnlyList<byte> rgb)
             : this(rgb[0], rgb[1], rgb[2])
         {
         }
@@ -447,11 +408,11 @@ namespace netDxf
         /// <remarks>By default the UseTrueColor will be set to true.</remarks>
         public AciColor(byte r, byte g, byte b)
         {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.useTrueColor = true;
-            this.index = RgbToAci(this.r, this.g, this.b);
+            R = r;
+            G = g;
+            B = b;
+            UseTrueColor = true;
+            _index = RgbToAci(R, G, B);
         }
 
         /// <summary>
@@ -459,7 +420,7 @@ namespace netDxf
         /// </summary>
         /// <param name="rgb">RGB components (input values range from 0 to 1). The array must contain three values.</param>
         /// <remarks>By default the UseTrueColor will be set to true.</remarks>
-        public AciColor(double[] rgb)
+        public AciColor(IReadOnlyList<double> rgb)
             : this(rgb[0], rgb[1], rgb[2])
         {
         }
@@ -473,24 +434,26 @@ namespace netDxf
         /// <remarks>By default the UseTrueColor will be set to true.</remarks>
         public AciColor(double r, double g, double b)
         {
-            if (r < 0 || r > 1)
+            if (r is < 0 or > 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(r), r, "Red component input values range from 0 to 1.");
             }
-            if (g < 0 || g > 1)
+
+            if (g is < 0 or > 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(g), g, "Green component input values range from 0 to 1.");
             }
-            if (b < 0 || b > 1)
+
+            if (b is < 0 or > 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(b), b, "Blue component input values range from 0 to 1.");
             }
 
-            this.r = (byte) Math.Round(r * 255);
-            this.g = (byte) Math.Round(g * 255);
-            this.b = (byte) Math.Round(b * 255);
-            this.useTrueColor = true;
-            this.index = RgbToAci(this.r, this.g, this.b);
+            R = (byte)Math.Round(r * 255);
+            G = (byte)Math.Round(g * 255);
+            B = (byte)Math.Round(b * 255);
+            UseTrueColor = true;
+            _index = RgbToAci(R, G, B);
         }
 
         /// <summary>
@@ -514,17 +477,20 @@ namespace netDxf
         /// </remarks>
         public AciColor(short index)
         {
-            if (index <= 0 || index >= 256)
+            if (index is <= 0 or >= 256)
             {
-                throw new ArgumentOutOfRangeException(nameof(index), index, "Accepted color index values range from 1 to 255.");
+                throw new ArgumentOutOfRangeException(
+                    nameof(index),
+                    index,
+                    "Accepted color index values range from 1 to 255.");
             }
 
-            byte[] rgb = IndexRgb[(byte) index];
-            this.r = rgb[0];
-            this.g = rgb[1];
-            this.b = rgb[2];
-            this.useTrueColor = false;
-            this.index = index;
+            var rgb = IndexRgb[(byte)index];
+            R = rgb[0];
+            G = rgb[1];
+            B = rgb[2];
+            UseTrueColor = false;
+            _index = index;
         }
 
         #endregion
@@ -534,42 +500,27 @@ namespace netDxf
         /// <summary>
         /// Defines if the color is defined by layer.
         /// </summary>
-        public bool IsByLayer
-        {
-            get { return this.index == 256; }
-        }
+        public bool IsByLayer => _index == 256;
 
         /// <summary>
         /// Defines if the color is defined by block.
         /// </summary>
-        public bool IsByBlock
-        {
-            get { return this.index == 0; }
-        }
+        public bool IsByBlock => _index == 0;
 
         /// <summary>
         /// Gets the red component of the AciColor.
         /// </summary>
-        public byte R
-        {
-            get { return this.r; }
-        }
+        public byte R { get; private set; }
 
         /// <summary>
         /// Gets the green component of the AciColor.
         /// </summary>
-        public byte G
-        {
-            get { return this.g; }
-        }
+        public byte G { get; private set; }
 
         /// <summary>
         /// Gets the blue component of the AciColor.
         /// </summary>
-        public byte B
-        {
-            get { return this.b; }
-        }
+        public byte B { get; private set; }
 
         /// <summary>
         /// Get or set if the AciColor should use true color values.
@@ -578,11 +529,7 @@ namespace netDxf
         /// By default, the constructors that use RGB values will set this boolean to true
         /// while the constants and the constructor that use a color index will set it to false.
         /// </remarks>
-        public bool UseTrueColor
-        {
-            get { return this.useTrueColor; }
-            set { this.useTrueColor = value; }
-        }
+        public bool UseTrueColor { get; set; }
 
         /// <summary>
         /// Gets or sets the color index.
@@ -593,20 +540,21 @@ namespace netDxf
         /// </remarks>
         public short Index
         {
-            get { return this.index; }
+            get => _index;
             set
             {
-                if (value <= 0 || value >= 256)
+                if (value is <= 0 or >= 256)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), value, "Accepted color index values range from 1 to 255.");
+                    throw new ArgumentOutOfRangeException(nameof(value), value,
+                        "Accepted color index values range from 1 to 255.");
                 }
 
-                this.index = value;
-                byte[] rgb = IndexRgb[(byte) this.index];
-                this.r = rgb[0];
-                this.g = rgb[1];
-                this.b = rgb[2];
-                this.useTrueColor = false;
+                _index = value;
+                var rgb = IndexRgb[(byte)_index];
+                R = rgb[0];
+                G = rgb[1];
+                B = rgb[2];
+                UseTrueColor = false;
             }
         }
 
@@ -623,24 +571,24 @@ namespace netDxf
         /// <returns>The approximate color index from the RGB components.</returns>
         public static byte RgbToAci(byte r, byte g, byte b)
         {
-            int prevDist = int.MaxValue;
+            var prevDist = int.MaxValue;
             byte index = 0;
-            for (int i = 1; i < 256; i++)
+            for (var i = 1; i < 256; i++)
             {
-                byte[] color = IndexRgb[i];
-                int red = r - color[0];
-                int green = g - color[1];
-                int blue = b - color[2];
-                int dist = red * red + green * green + blue * blue;
+                var color = IndexRgb[i];
+                var red = r - color[0];
+                var green = g - color[1];
+                var blue = b - color[2];
+                var dist = red * red + green * green + blue * blue;
                 if (dist == 0) // the RGB components correspond to one of the indexed colors
                 {
                     return (byte)i;
                 }
-                if (dist < prevDist)
-                {
-                    prevDist = dist;
-                    index = (byte)i;
-                }
+
+                if (dist >= prevDist)
+                    continue;
+                prevDist = dist;
+                index = (byte)i;
             }
 
             return index;
@@ -665,33 +613,39 @@ namespace netDxf
         /// <returns>An <see cref="Color">AciColor</see> that represents the actual HSL value.</returns>
         public static AciColor FromHsl(double hue, double saturation, double lightness)
         {
-            if (hue < 0 || hue > 1)
+            if (hue is < 0 or > 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(hue), hue, "Hue input values range from 0 to 1.");
             }
-            if (saturation < 0 || saturation > 1)
+
+            if (saturation is < 0 or > 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(saturation), saturation, "Saturation input values range from 0 to 1.");
-            }
-            if (lightness < 0 || lightness > 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(lightness), lightness, "Lightness input values range from 0 to 1.");
+                throw new ArgumentOutOfRangeException(nameof(saturation), saturation,
+                    "Saturation input values range from 0 to 1.");
             }
 
-            double red = lightness;
-            double green = lightness;
-            double blue = lightness;
-            double v = lightness <= 0.5 ? lightness * (1.0 + saturation) : lightness + saturation - lightness * saturation;
+            if (lightness is < 0 or > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(lightness), lightness,
+                    "Lightness input values range from 0 to 1.");
+            }
+
+            var red = lightness;
+            var green = lightness;
+            var blue = lightness;
+            var v = lightness <= 0.5
+                ? lightness * (1.0 + saturation)
+                : lightness + saturation - lightness * saturation;
             if (v > 0)
             {
-                double m = lightness + lightness - v;
-                double sv = (v - m)/v;
+                var m = lightness + lightness - v;
+                var sv = (v - m) / v;
                 hue *= 6.0;
-                int sextant = (int) hue;
-                double fract = hue - sextant;
-                double vsf = v * sv * fract;
-                double mid1 = m + vsf;
-                double mid2 = v - vsf;
+                var sextant = (int)hue;
+                var fract = hue - sextant;
+                var vsf = v * sv * fract;
+                var mid1 = m + vsf;
+                var mid2 = v - vsf;
                 switch (sextant)
                 {
                     case 0:
@@ -731,6 +685,7 @@ namespace netDxf
                         break;
                 }
             }
+
             return new AciColor(red, green, blue);
         }
 
@@ -741,7 +696,7 @@ namespace netDxf
         /// <param name="hsl">A Vector3 containing the hue, saturation, and lightness components (output values range from 0 to 1).</param>
         public static void ToHsl(AciColor color, out Vector3 hsl)
         {
-            ToHsl(color, out double h, out double s, out double l);
+            ToHsl(color, out var h, out var s, out var l);
             hsl = new Vector3(h, s, l);
         }
 
@@ -759,15 +714,15 @@ namespace netDxf
                 throw new ArgumentNullException(nameof(color));
             }
 
-            double red = color.R / 255.0;
-            double green = color.G / 255.0;
-            double blue = color.B / 255.0;
+            var red = color.R / 255.0;
+            var green = color.G / 255.0;
+            var blue = color.B / 255.0;
 
             hue = 0;
             saturation = 0;
-            double v = Math.Max(red, green);
+            var v = Math.Max(red, green);
             v = Math.Max(v, blue);
-            double m = Math.Min(red, green);
+            var m = Math.Min(red, green);
             m = Math.Min(m, blue);
 
             lightness = (m + v) / 2.0;
@@ -776,7 +731,7 @@ namespace netDxf
                 return;
             }
 
-            double vm = v - m;
+            var vm = v - m;
             saturation = vm;
             if (saturation > 0.0)
             {
@@ -787,9 +742,9 @@ namespace netDxf
                 return;
             }
 
-            double red2 = (v - red) / vm;
-            double green2 = (v - green) / vm;
-            double blue2 = (v - blue) / vm;
+            var red2 = (v - red) / vm;
+            var green2 = (v - green) / vm;
+            var blue2 = (v - blue) / vm;
 
             if (MathHelper.IsEqual(red, v))
             {
@@ -816,7 +771,7 @@ namespace netDxf
         /// </returns>
         public static Vector3 ToHsl(AciColor color)
         {
-            ToHsl(color, out double h, out double s, out double l);
+            ToHsl(color, out var h, out var s, out var l);
             return new Vector3(h, s, l);
         }
 
@@ -829,11 +784,10 @@ namespace netDxf
         /// </remarks>
         public Color ToColor()
         {
-            if (this.index < 1 || this.index > 255) //default color definition for ByLayer and ByBlock colors
-            {
-                return Color.White;
-            }
-            return Color.FromArgb(this.r, this.g, this.b);
+            return _index is < 1 or > 255
+                ? //default color definition for ByLayer and ByBlock colors
+                Color.White
+                : Color.FromArgb(R, G, B);
         }
 
         /// <summary>
@@ -842,11 +796,11 @@ namespace netDxf
         /// <param name="color">A <see cref="Color">color</see>.</param>
         public void FromColor(Color color)
         {
-            this.r = color.R;
-            this.g = color.G;
-            this.b = color.B;
-            this.useTrueColor = true;
-            this.index = RgbToAci(this.r, this.g, this.b);
+            R = color.R;
+            G = color.G;
+            B = color.B;
+            UseTrueColor = true;
+            _index = RgbToAci(R, G, B);
         }
 
         /// <summary>
@@ -860,22 +814,16 @@ namespace netDxf
         /// </remarks>
         public static AciColor FromCadIndex(short index)
         {
-            if (index < 0 || index > 256)
+            return index switch
             {
-                throw new ArgumentOutOfRangeException(nameof(index), index, "Accepted CAD indexed AciColor values range from 0 to 256.");
-            }
-
-            if (index == 0)
-            {
-                return ByBlock;
-            }
-
-            if (index == 256)
-            {
-                return ByLayer;
-            }
-
-            return new AciColor(index);
+                < 0 or > 256 => throw new ArgumentOutOfRangeException(
+                    nameof(index),
+                    index,
+                    "Accepted CAD indexed AciColor values range from 0 to 256."),
+                0 => ByBlock,
+                256 => ByLayer,
+                _ => new AciColor(index)
+            };
         }
 
         /// <summary>
@@ -885,7 +833,7 @@ namespace netDxf
         /// <returns>A <see cref="AciColor">color</see>.</returns>
         public static AciColor FromTrueColor(int value)
         {
-            byte[] bytes = BitConverter.GetBytes(value);
+            var bytes = BitConverter.GetBytes(value);
             return new AciColor(bytes[2], bytes[1], bytes[0]);
         }
 
@@ -901,12 +849,29 @@ namespace netDxf
                 throw new ArgumentNullException(nameof(color));
             }
 
+            var bytes = new[] { color.B, color.G, color.R };
+            return BitConverter.ToInt32(bytes, 0);
+        }
+
+        /// <summary>
+        /// Gets the 32-bit color value from an AciColor.
+        /// </summary>
+        /// <param name="color">A <see cref="AciColor">color</see>.</param>
+        /// <returns>A 32-bit color value.</returns>
+        public static int ToTrueColorForLayerState(AciColor color)
+        {
+            if (color == null)
+            {
+                throw new ArgumentNullException(nameof(color));
+            }
+
             // AutoCad weirdness at its best
             // the forth byte seems to have no use,
             // when AutoCad saves a layer color as a true color this fourth byte is always 0,
             // when the layer color is read it seems that it doesn't care about the value of this fourth byte 
             // but if the fourth byte is not set as 194 the layer state color will be shown as an index color
-            return BitConverter.ToInt32(new byte[] { color.B, color.G, color.R, 194 }, 0);
+            var bytes = new byte[] { color.B, color.G, color.R, 194 };
+            return BitConverter.ToInt32(bytes, 0);
         }
 
         #endregion
@@ -919,22 +884,23 @@ namespace netDxf
         /// <returns>The string representation.</returns>
         public override string ToString()
         {
-            if (this.index == 0)
+            if (_index == 0)
             {
                 return "ByBlock";
             }
 
-            if (this.index == 256)
+            if (_index == 256)
             {
                 return "ByLayer";
             }
 
-            if (this.useTrueColor)
+            if (UseTrueColor)
             {
-                return String.Format("{0}{3}{1}{3}{2}", this.r, this.g, this.b, Thread.CurrentThread.CurrentCulture.TextInfo.ListSeparator);
+                return string.Format("{0}{3}{1}{3}{2}", R, G, B,
+                    Thread.CurrentThread.CurrentCulture.TextInfo.ListSeparator);
             }
 
-            return this.index.ToString(CultureInfo.CurrentCulture);
+            return _index.ToString(CultureInfo.CurrentCulture);
         }
 
         #endregion
@@ -947,13 +913,13 @@ namespace netDxf
         /// <returns>A new color that is a copy of this instance.</returns>
         public object Clone()
         {
-            AciColor color = new AciColor
+            var color = new AciColor
             {
-                r = this.r,
-                g = this.g,
-                b = this.b,
-                useTrueColor = this.useTrueColor,
-                index = this.index
+                R = R,
+                G = G,
+                B = B,
+                UseTrueColor = UseTrueColor,
+                _index = _index
             };
 
             return color;
@@ -975,7 +941,7 @@ namespace netDxf
                 return false;
             }
 
-            return (other.r == this.r) && (other.g == this.g) && (other.b == this.b);
+            return (other.R == R) && (other.G == G) && (other.B == B);
         }
 
         #endregion
