@@ -849,7 +849,7 @@ namespace netDxf
                 throw new ArgumentNullException(nameof(color));
             }
 
-            var bytes = new[] { color.B, color.G, color.R };
+            var bytes = new byte[] { color.B, color.G, color.R, 0 };
             return BitConverter.ToInt32(bytes, 0);
         }
 
