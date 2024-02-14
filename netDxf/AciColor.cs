@@ -870,6 +870,7 @@ namespace netDxf
             // when AutoCad saves a layer color as a true color this fourth byte is always 0,
             // when the layer color is read it seems that it doesn't care about the value of this fourth byte 
             // but if the fourth byte is not set as 194 the layer state color will be shown as an index color
+            // TODO: check this
             var bytes = new byte[] { color.B, color.G, color.R, 194 };
             return BitConverter.ToInt32(bytes, 0);
         }
