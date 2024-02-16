@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using netDxf.Collections;
 using netDxf.Tables;
@@ -46,7 +47,6 @@ namespace netDxf.Objects
 
         private string description;
         private string currentLayer;
-        private bool paperSpace;
         private readonly ObservableDictionary<string, LayerStateProperties> properties;
 
         #endregion
@@ -70,22 +70,22 @@ namespace netDxf.Objects
         public LayerState(string name, IEnumerable<Layer> layers)
             : base(name, DxfObjectCode.LayerStates, true)
         {
-            this.description = string.Empty;
-            this.currentLayer = Layer.DefaultName;
-            this.paperSpace = false;
+            description = string.Empty;
+            currentLayer = Layer.DefaultName;
+            PaperSpace = false;
 
-            this.properties = new ObservableDictionary<string, LayerStateProperties>();
-            this.properties.BeforeAddItem += this.Properties_BeforeAddItem;
+            properties = new ObservableDictionary<string, LayerStateProperties>();
+            properties.BeforeAddItem += this.Properties_BeforeAddItem;
 
             if (layers == null)
             {
                 throw new ArgumentNullException(nameof(layers));
             }
 
-            foreach (Layer layer in layers)
+            foreach (var layer in layers)
             {
-                LayerStateProperties prop = new LayerStateProperties(layer);
-                this.properties.Add(prop.Name, prop);
+                var prop = new LayerStateProperties(layer);
+                properties.Add(prop.Name, prop);
             }
         }
 
@@ -98,8 +98,8 @@ namespace netDxf.Objects
         /// </summary>
         public string Description
         {
-            get { return this.description; }
-            set { this.description = string.IsNullOrEmpty(value) ? string.Empty : value; }
+            get => description;
+            set => description = value ?? string.Empty;
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace netDxf.Objects
         /// </summary>
         public string CurrentLayer
         {
-            get { return this.currentLayer; }
+            get => currentLayer;
             set
             {
                 if (string.IsNullOrEmpty(value))
@@ -129,27 +129,20 @@ namespace netDxf.Objects
         /// <summary>
         /// Gets or sets if the layer state belongs to a paper space layout.
         /// </summary>
-        public bool PaperSpace
-        {
-            get { return this.paperSpace; }
-            set { this.paperSpace = value; }
-        }
+        public bool PaperSpace { get; set; }
 
         /// <summary>
         /// Gets the list of layer state properties.
         /// </summary>
-        public ObservableDictionary<string, LayerStateProperties> Properties
-        {
-            get { return this.properties; }
-        }
+        public ObservableDictionary<string, LayerStateProperties> Properties => properties;
 
         /// <summary>
         /// Gets the owner of the actual layer state.
         /// </summary>
         public new LayerStateManager Owner
         {
-            get { return (LayerStateManager) base.Owner; }
-            internal set { base.Owner = value; }
+            get => (LayerStateManager) base.Owner;
+            internal set => base.Owner = value;
         }
 
         #endregion
@@ -186,7 +179,7 @@ namespace netDxf.Objects
         /// <returns>Returns true if the file has been successfully saved, false otherwise.</returns>
         public bool Save(string file)
         {
-            FileStream stream = File.Create(file);
+            var stream = File.Create(file);
             try
             {
                 Write(stream, this);
@@ -218,7 +211,7 @@ namespace netDxf.Objects
                 throw new ArgumentNullException(nameof(ls));
             }
 
-            TextCodeValueWriter chunk = new TextCodeValueWriter(new StreamWriter(stream));
+            var chunk = new TextCodeValueWriter(new StreamWriter(stream));
 
             chunk.Write(0, LayerStateDictionary);
             chunk.Write(0, LayerStateName);
@@ -228,7 +221,7 @@ namespace netDxf.Objects
             chunk.Write(290, ls.PaperSpace);
             chunk.Write(302, ls.CurrentLayer);
 
-            foreach (LayerStateProperties lp in ls.Properties.Values)
+            foreach (var lp in ls.Properties.Values)
             {
                 chunk.Write(8, lp.Name);
                 chunk.Write(90, (int) lp.Flags);
@@ -240,7 +233,7 @@ namespace netDxf.Objects
                 if (lp.Color.UseTrueColor)
                 {
                     // this code only appears if the layer color has been defined as true color
-                    chunk.Write(92, AciColor.ToTrueColor(lp.Color));
+                    chunk.Write(92, AciColor.ToTrueColorForLayerState(lp.Color));
                 }
             }
             chunk.Flush();
@@ -248,36 +241,30 @@ namespace netDxf.Objects
 
         private static LayerState Read(Stream stream)
         {
-            if (stream == null)
+            if (stream is null)
             {
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            TextCodeValueReader chunk = new TextCodeValueReader(new StreamReader(stream, Encoding.UTF8, true));
+            var chunk = new TextCodeValueReader(new StreamReader(stream, Encoding.UTF8, true));
 
             chunk.Next();
-            if (chunk.Code == 0 )
-            {
-                if (chunk.ReadString() != LayerStateDictionary)
-                {
-                    throw new Exception("File not valid.");
-                }
-            }
-            else
+            if (chunk.Code != 0 || chunk.ReadString() != LayerStateDictionary)
             {
                 throw new Exception("File not valid.");
             }
+
             chunk.Next();
             return ReadLayerState(chunk);
         }
 
         private static LayerState ReadLayerState(TextCodeValueReader chunk)
         {
-            string name = string.Empty;
-            string description = string.Empty;
-            string currentLayer = Layer.DefaultName;
-            bool paperSpace = false;
-            List<LayerStateProperties> layerProperties = new List<LayerStateProperties>();
+            var name = string.Empty;
+            var description = string.Empty;
+            var currentLayer = Layer.DefaultName;
+            var paperSpace = false;
+            var layerProperties = new List<LayerStateProperties>();
 
             if (chunk.Code == 0 )
             {
@@ -324,19 +311,16 @@ namespace netDxf.Objects
                 }
             }
 
-            LayerState states = new LayerState(name)
+            var states = new LayerState(name)
             {
                 Description = description,
                 CurrentLayer = currentLayer,
                 PaperSpace = paperSpace
             };
 
-            foreach (LayerStateProperties lp in layerProperties)
+            foreach (var lp in layerProperties.Where(lp => !states.Properties.ContainsKey(lp.Name)))
             {
-                if (!states.Properties.ContainsKey(lp.Name))
-                {
-                    states.Properties.Add(lp.Name, lp);
-                }
+                states.Properties.Add(lp.Name, lp);
             }
 
             return states;
@@ -344,14 +328,14 @@ namespace netDxf.Objects
 
         private static LayerStateProperties ReadLayerProperties(TextCodeValueReader chunk)
         {
-            LayerPropertiesFlags flags = LayerPropertiesFlags.Plot;
-            string lineType = Linetype.DefaultName;
+            var flags = LayerPropertiesFlags.Plot;
+            var lineType = Linetype.DefaultName;
             //string plotStyle = string.Empty;
-            AciColor color = AciColor.Default;
-            Lineweight lineweight = Lineweight.Default;
-            Transparency transparency = new Transparency(0);
+            var color = AciColor.Default;
+            var lineWeight = Lineweight.Default;
+            var transparency = new Transparency(0);
 
-            string name = chunk.ReadString();
+            var name = chunk.ReadString();
             chunk.Next();
 
             while (chunk.Code != 8 && chunk.Code != 0)
@@ -367,7 +351,7 @@ namespace netDxf.Objects
                         chunk.Next();
                         break;
                     case 370:
-                        lineweight = (Lineweight) chunk.ReadShort();
+                        lineWeight = (Lineweight) chunk.ReadShort();
                         chunk.Next();
                         break;
                     case 6:
@@ -379,7 +363,7 @@ namespace netDxf.Objects
                         chunk.Next();
                         break;
                     case 440:
-                        int alpha = chunk.ReadInt();
+                        var alpha = chunk.ReadInt();
                         transparency = alpha == 0 ? new Transparency(0) : Transparency.FromAlphaValue(alpha);
                         chunk.Next();
                         break;
@@ -398,11 +382,11 @@ namespace netDxf.Objects
                 return null;
             }
 
-            LayerStateProperties properties = new LayerStateProperties(name)
+            var properties = new LayerStateProperties(name)
             {
                 Flags = flags,
                 Color = color,
-                Lineweight = lineweight,
+                Lineweight = lineWeight,
                 LinetypeName = lineType,
                 //PlotStyleName = plotStyle,
                 Transparency = transparency
@@ -427,7 +411,7 @@ namespace netDxf.Objects
         /// </remarks>
         public override bool HasReferences()
         {
-            return this.Owner != null && this.Owner.HasReferences(this.Name);
+            return Owner != null && Owner.HasReferences(Name);
         }
 
         /// <summary>
@@ -442,12 +426,7 @@ namespace netDxf.Objects
         /// </remarks>
         public override List<DxfObjectReference> GetReferences()
         {
-            if (this.Owner == null)
-            {
-                return null;
-            }
-
-            return this.Owner.GetReferences(this.Name);
+            return Owner?.GetReferences(Name);
         } // TODO: Check this
 
         /// <summary>
@@ -457,15 +436,15 @@ namespace netDxf.Objects
         /// <returns>A new LayerState that is a copy of this instance.</returns>
         public override TableObject Clone(string newName)
         {
-            LayerState ls = new LayerState(newName)
+            var ls = new LayerState(newName)
             {
                 Description = this.description,
                 CurrentLayer = this.currentLayer
             };
 
-            foreach (LayerStateProperties item in this.properties.Values)
+            foreach (var item in this.properties.Values)
             {
-                LayerStateProperties lp = (LayerStateProperties) item.Clone();
+                var lp = (LayerStateProperties) item.Clone();
                 ls.Properties.Add(lp.Name, lp);
             }
 
@@ -478,7 +457,7 @@ namespace netDxf.Objects
         /// <returns>A new LayerState that is a copy of this instance.</returns>
         public override object Clone()
         {
-            return this.Clone(this.Name);
+            return Clone(Name);
         }
 
         #endregion
@@ -491,9 +470,9 @@ namespace netDxf.Objects
             {
                 e.Cancel = true;
             }
-            else if (this.Owner != null)
+            else if (Owner != null)
             {
-                DxfDocument doc = this.Owner.Owner;
+                var doc = Owner.Owner;
                 if (!doc.Layers.Contains(e.Item.Key))
                 {
                     e.Cancel = true;

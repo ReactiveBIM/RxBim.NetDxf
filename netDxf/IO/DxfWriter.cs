@@ -5072,7 +5072,7 @@ namespace netDxf.IO
             if (properties.Color.UseTrueColor)
             {
                 // this code only appears if the layer color has been defined as true color
-                this.chunk.Write(92, AciColor.ToTrueColor(properties.Color));
+                this.chunk.Write(92, AciColor.ToTrueColorForLayerState(properties.Color));
             }
         }
 
