@@ -1,0 +1,26 @@
+<Project>
+    <PropertyGroup>
+        <Authors>Daniel Carvajal, ReactiveBIM</Authors>
+        <Company>ReactiveBIM</Company>
+        <Product>RxBim</Product>
+        <Copyright>Daniel Carvajal © 2023, ReactiveBIM © 2024</Copyright>
+        <RepositoryUrl>https://github.com/ReactiveBIM/RxBim.NetDxf.git</RepositoryUrl>
+    </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net8.0;net48</TargetFrameworks>
+        <Nullable>disable</Nullable>
+        <LangVersion>12</LangVersion>
+        <Version>1.0.0</Version>
+        <PlatformTarget>x64</PlatformTarget>
+        <ImplicitUsings>true</ImplicitUsings>
+    </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>$(MSBuildProjectName)</PackageId>
+        <PackageTags>netDxf Dxf reader writer AutoCAD</PackageTags>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageProjectUrl>https://github.com/ReactiveBIM/RxBim.NetDxf</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <NoPackageAnalysis>true</NoPackageAnalysis>
+        <PackageReleaseNotes>netDxf is a .net library programmed in C# to read and write AutoCAD DXF files. It supports AutoCad2000, AutoCad2004, AutoCad2007, AutoCad2010, AutoCad2013, and AutoCad2018 DXF database versions, in both text and binary format.</PackageReleaseNotes>
+    </PropertyGroup>
+</Project>
