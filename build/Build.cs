@@ -7,27 +7,27 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [GitHubActions(
     "WIP",
-    GitHubActionsImage.UbuntuLatest,
+    GitHubActionsImage.WindowsLatest,
     FetchDepth = 0,
     OnPushBranches = ["feature/**", "bugfix/**"],
     InvokedTargets = [nameof(Test), nameof(IPublish.Publish)],
     ImportSecrets = ["NUGET_API_KEY", "ALL_PACKAGES"])]
 [GitHubActions(
     "Develop",
-    GitHubActionsImage.UbuntuLatest,
+    GitHubActionsImage.WindowsLatest,
     FetchDepth = 0,
     OnPushBranches = ["develop"],
     InvokedTargets = [nameof(Test)])]
 [GitHubActions(
     "PreRelease",
-    GitHubActionsImage.UbuntuLatest,
+    GitHubActionsImage.WindowsLatest,
     FetchDepth = 0,
     OnPushBranches = ["release/**", "hotfix/**"],
     InvokedTargets = [nameof(Test), nameof(IPublish.Publish)],
     ImportSecrets = ["NUGET_API_KEY", "ALL_PACKAGES"])]
 [GitHubActions(
     "Release",
-    GitHubActionsImage.UbuntuLatest,
+    GitHubActionsImage.WindowsLatest,
     FetchDepth = 0,
     OnPushBranches = ["master"],
     InvokedTargets = [nameof(Test), nameof(IPublish.Publish)],
