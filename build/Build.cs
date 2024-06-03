@@ -1,44 +1,52 @@
-using System;
-using System.Linq;
+using Bimlab.Nuke;
+using Bimlab.Nuke.Components;
 using Nuke.Common;
-using Nuke.Common.CI;
-using Nuke.Common.Execution;
-using Nuke.Common.IO;
-using Nuke.Common.ProjectModel;
-using Nuke.Common.Tooling;
-using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.EnvironmentInfo;
-using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.IO.PathConstruction;
+using Nuke.Common.CI.GitHubActions;
+using Nuke.Common.Tools.DotNet;
+using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
-class Build : NukeBuild
+[GitHubActions(
+    "WIP",
+    GitHubActionsImage.WindowsLatest,
+    FetchDepth = 0,
+    OnPushBranches = ["feature/**", "bugfix/**"],
+    InvokedTargets = [nameof(Test), nameof(IPublish.Publish)],
+    ImportSecrets = ["NUGET_API_KEY", "ALL_PACKAGES"])]
+[GitHubActions(
+    "Develop",
+    GitHubActionsImage.WindowsLatest,
+    FetchDepth = 0,
+    OnPushBranches = ["develop"],
+    InvokedTargets = [nameof(Test)])]
+[GitHubActions(
+    "PreRelease",
+    GitHubActionsImage.WindowsLatest,
+    FetchDepth = 0,
+    OnPushBranches = ["release/**", "hotfix/**"],
+    InvokedTargets = [nameof(Test), nameof(IPublish.Publish)],
+    ImportSecrets = ["NUGET_API_KEY", "ALL_PACKAGES"])]
+[GitHubActions(
+    "Release",
+    GitHubActionsImage.WindowsLatest,
+    FetchDepth = 0,
+    OnPushBranches = ["master"],
+    InvokedTargets = [nameof(Test), nameof(IPublish.Publish)],
+    ImportSecrets = ["NUGET_API_KEY", "ALL_PACKAGES"])]
+class Build : BimLabBuild, IPublish
 {
     /// Support plugins are available for:
     ///   - JetBrains ReSharper        https://nuke.build/resharper
     ///   - JetBrains Rider            https://nuke.build/rider
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
+    public static int Main() => Execute<Build>(x => x.From<ICompile>().Compile);
 
-    public static int Main () => Execute<Build>(x => x.Compile);
-
-    [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
-    readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
-
-    Target Clean => _ => _
-        .Before(Restore)
+    public Target Test => definition => definition
+        .Before<IRestore>()
         .Executes(() =>
         {
+            DotNetTest(settings => settings
+                .SetProjectFile(From<IHasSolution>().Solution.Path)
+                .SetConfiguration(From<IHasConfiguration>().Configuration));
         });
-
-    Target Restore => _ => _
-        .Executes(() =>
-        {
-        });
-
-    Target Compile => _ => _
-        .DependsOn(Restore)
-        .Executes(() =>
-        {
-        });
-
 }
