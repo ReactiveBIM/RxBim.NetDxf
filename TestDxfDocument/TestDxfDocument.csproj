@@ -6,6 +6,7 @@
     <Authors />
     <Company />
     <Product />
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
