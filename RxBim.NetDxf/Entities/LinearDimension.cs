@@ -42,6 +42,10 @@ namespace netDxf.Entities
         private Vector2 secondRefPoint;
         private double offset;
         private double rotation;
+        private bool showDimTextAsNote;
+        private double firstNoteOffset;
+        private double secondNoteOffset;
+        private double dimSecondLineScaleFactor = 0.625;
 
         #endregion
 
@@ -166,6 +170,42 @@ namespace netDxf.Entities
         {
             get { return this.firstRefPoint; }
             set { this.firstRefPoint = value; }
+        }
+        
+        /// <summary>
+        /// Gets or sets the showDimTextAsNote value.
+        /// </summary>
+        public bool ShowDimTextAsNote
+        {
+            get { return this.showDimTextAsNote; }
+            set { this.showDimTextAsNote = value; }
+        }
+        
+        /// <summary>
+        /// Gets or sets the firstNoteOffset value.
+        /// </summary>
+        public double FirstNoteOffset
+        {
+            get { return this.firstNoteOffset; }
+            set { this.firstNoteOffset = value; }
+        }
+        
+        /// <summary>
+        /// Gets or sets the secondNoteOffset value.
+        /// </summary>
+        public double SecondNoteOffset
+        {
+            get { return this.secondNoteOffset; }
+            set { this.secondNoteOffset = value; }
+        }
+        
+        /// <summary>
+        /// Gets or sets the dimSecondLineScaleFactor value.
+        /// </summary>
+        public double DimSecondLineScaleFactor
+        {
+            get { return this.dimSecondLineScaleFactor; }
+            set { this.dimSecondLineScaleFactor = value; }
         }
 
         /// <summary>

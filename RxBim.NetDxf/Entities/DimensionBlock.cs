@@ -868,14 +868,30 @@ namespace netDxf.Entities
                 gap = -gap;
                 textRot += MathHelper.PI;
             }
-
+            
             List<string> texts = FormatDimensionText(measure, dim.DimensionType, dim.UserText, style, dim.Owner);
             MText mText = DimensionText(textRef + gap * vec, MTextAttachmentPoint.BottomCenter, textRot, texts[0], style);
             //MText mText = DimensionText(Vector2.Polar(textRef, (style.TextOffset + style.TextHeight*0.5) * style.DimScaleOverall, textRot + MathHelper.HalfPI), MTextAttachmentPoint.MiddleCenter, textRot, texts[0], style);
 
             if (mText != null)
             {
-                entities.Add(mText);
+                if (dim.ShowDimTextAsNote)
+                {
+                    var thirdVector2 = Vector2.Normalize(dimRef2 - textRef);
+                    var secondVertex = textRef + dirRef1 * dim.FirstNoteOffset + thirdVector2 * dim.SecondNoteOffset;
+                    var thirdVertex = secondVertex + thirdVector2 * texts[0].Length *  style.DimScaleOverall * style.TextHeight * dim.DimSecondLineScaleFactor;
+                    
+                    entities.Add(new Line(textRef, secondVertex));
+                    entities.Add(new Line(secondVertex, thirdVertex));
+
+                    var mTextPosition = Vector2.MidPoint(secondVertex, thirdVertex) + gap * vec;
+
+                    mText.Position = new Vector3(mTextPosition.X, mTextPosition.Y, 0.0);
+                    mText.AttachmentPoint = MTextAttachmentPoint.BottomCenter;
+                    entities.Add(mText);
+                }
+                else
+                    entities.Add(mText);
             }
 
             // there might be an additional text if the code \X has been used in the dimension UserText 
