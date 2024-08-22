@@ -859,8 +859,8 @@ namespace netDxf.Entities
                 entities.Add(ExtensionLine(ref2 + dimexo * dirRef2, dimRef2 + dimexe * dirRef2, style, style.ExtLine2Linetype));
             }
 
-            // dimension text
-            Vector2 textRef = Vector2.MidPoint(dimRef1, dimRef2);
+            var middlePoint = Vector2.MidPoint(dimRef1, dimRef2);
+            
             double gap = style.TextOffset * style.DimScaleOverall;
             double textRot = dimRotation;
             if (textRot > MathHelper.HalfPI && textRot <= MathHelper.ThreeHalfPI)
@@ -870,43 +870,49 @@ namespace netDxf.Entities
             }
             
             List<string> texts = FormatDimensionText(measure, dim.DimensionType, dim.UserText, style, dim.Owner);
-            MText mText = DimensionText(textRef + gap * vec, MTextAttachmentPoint.BottomCenter, textRot, texts[0], style);
+            MText mText = DimensionText(middlePoint + gap * vec, MTextAttachmentPoint.BottomCenter, textRot, texts[0], style);
             //MText mText = DimensionText(Vector2.Polar(textRef, (style.TextOffset + style.TextHeight*0.5) * style.DimScaleOverall, textRot + MathHelper.HalfPI), MTextAttachmentPoint.MiddleCenter, textRot, texts[0], style);
 
             if (mText != null)
             {
-                if (dim.ShowDimTextAsNote)
+                if (!IsPointOnSegment(new Line(dim.FirstReferencePoint, dim.SecondReferencePoint), dim.TextReferencePoint) &&
+                    style.FitTextMove == DimensionStyleFitTextMove.OverDimLineWithLeader)
                 {
-                    var thirdVector2 = Vector2.Normalize(dimRef2 - textRef);
-                    var secondVertex = textRef + dirRef1 * dim.FirstNoteOffset + thirdVector2 * dim.SecondNoteOffset;
-                    var thirdVertex = secondVertex + thirdVector2 * texts[0].Length *  style.DimScaleOverall * style.TextHeight * dim.DimSecondLineScaleFactor;
+                    var thirdVector2 = Vector2.Normalize(dimRef2 - middlePoint);
+                    var dimRef2ToRefPoint = Vector2.Distance(dimRef2, dim.TextReferencePoint);
+                    var dimRef1ToRefPoint = Vector2.Distance(dimRef1, dim.TextReferencePoint);
+                    if (dimRef1ToRefPoint <= dimRef2ToRefPoint)
+                        thirdVector2 = -thirdVector2;
                     
-                    entities.Add(new Line(textRef, secondVertex));
-                    entities.Add(new Line(secondVertex, thirdVertex));
+                    var thirdVertex = dim.TextReferencePoint + thirdVector2 * texts[0].Length * style.DimScaleOverall *
+                        style.TextHeight * dim.DimSecondLineScaleFactor;
+                    
+                    entities.Add(new Line(middlePoint, dim.TextReferencePoint));
+                    entities.Add(new Line(dim.TextReferencePoint, thirdVertex));
 
-                    var mTextPosition = Vector2.MidPoint(secondVertex, thirdVertex) + gap * vec;
+                    var mTextPosition = Vector2.MidPoint(dim.TextReferencePoint, thirdVertex) + gap * vec;
 
                     mText.Position = new Vector3(mTextPosition.X, mTextPosition.Y, 0.0);
                     mText.AttachmentPoint = MTextAttachmentPoint.BottomCenter;
                     entities.Add(mText);
                 }
                 else
+                {
+                    dim.TextReferencePoint += gap * vec;
                     entities.Add(mText);
+                }
             }
 
             // there might be an additional text if the code \X has been used in the dimension UserText 
             // this additional text appears under the dimension line
             if (texts.Count > 1)
             {
-                MText mText2 = DimensionText(textRef - gap * vec, MTextAttachmentPoint.TopCenter, textRot, texts[1], style);
+                MText mText2 = DimensionText(middlePoint - gap * vec, MTextAttachmentPoint.TopCenter, textRot, texts[1], style);
                 if (mText2 != null)
                 {
                     entities.Add(mText2);
                 }
             }
-
-            dim.TextReferencePoint = textRef + gap * vec;
-            dim.TextPositionManuallySet = false;
 
             // drawing block
             return new Block(name, entities, null, false) {Flags = BlockTypeFlags.AnonymousBlock};
@@ -1696,6 +1702,28 @@ namespace netDxf.Entities
             //// drawing block
             //return new Block(name, entities, null, false) {Flags = BlockTypeFlags.AnonymousBlock};
         }
+        
+        private static bool IsPointOnSegment(Line l, Vector2 p)
+        {
+            double crossProduct = (p.Y - l.StartPoint.Y) * (l.EndPoint.X - l.StartPoint.X) -
+                                  (p.X - l.StartPoint.X) * (l.EndPoint.Y - l.StartPoint.Y);
+
+            if (Math.Abs(crossProduct) > Double.Epsilon)
+            {
+                return false;
+            }
+
+            double dotProduct = (p.X - l.StartPoint.X) * (l.EndPoint.X - l.StartPoint.X) +
+                                (p.Y - l.StartPoint.Y) * (l.EndPoint.Y - l.StartPoint.Y);
+            if (dotProduct < 0 || dotProduct > (l.EndPoint.X - l.StartPoint.X) * (l.EndPoint.X - l.StartPoint.X) +
+                (l.EndPoint.Y - l.StartPoint.Y) * (l.EndPoint.Y - l.StartPoint.Y))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
 
         #endregion
     }

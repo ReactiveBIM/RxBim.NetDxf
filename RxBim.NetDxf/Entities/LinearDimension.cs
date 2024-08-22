@@ -42,9 +42,6 @@ namespace netDxf.Entities
         private Vector2 secondRefPoint;
         private double offset;
         private double rotation;
-        private bool showDimTextAsNote;
-        private double firstNoteOffset;
-        private double secondNoteOffset;
         private double dimSecondLineScaleFactor = 0.625;
 
         #endregion
@@ -118,6 +115,8 @@ namespace netDxf.Entities
                 new List<Vector3> {referenceLine.StartPoint, referenceLine.EndPoint}, normal, CoordinateSystem.World, CoordinateSystem.Object);
             this.firstRefPoint = new Vector2(ocsPoints[0].X, ocsPoints[0].Y);
             this.secondRefPoint = new Vector2(ocsPoints[1].X, ocsPoints[1].Y);
+            this.textRefPoint = Vector2.MidPoint(firstRefPoint, secondRefPoint);
+
             this.offset = offset;
             this.rotation = MathHelper.NormalizeAngle(rotation);
             this.Style = style ?? throw new ArgumentNullException(nameof(style));
@@ -153,6 +152,7 @@ namespace netDxf.Entities
         {
             this.firstRefPoint = firstPoint;
             this.secondRefPoint = secondPoint;
+            this.textRefPoint = Vector2.MidPoint(firstPoint, secondPoint);
             this.offset = offset;
             this.rotation = MathHelper.NormalizeAngle(rotation);
             this.Style = style ?? throw new ArgumentNullException(nameof(style));
@@ -170,33 +170,6 @@ namespace netDxf.Entities
         {
             get { return this.firstRefPoint; }
             set { this.firstRefPoint = value; }
-        }
-        
-        /// <summary>
-        /// Gets or sets the showDimTextAsNote value.
-        /// </summary>
-        public bool ShowDimTextAsNote
-        {
-            get { return this.showDimTextAsNote; }
-            set { this.showDimTextAsNote = value; }
-        }
-        
-        /// <summary>
-        /// Gets or sets the firstNoteOffset value.
-        /// </summary>
-        public double FirstNoteOffset
-        {
-            get { return this.firstNoteOffset; }
-            set { this.firstNoteOffset = value; }
-        }
-        
-        /// <summary>
-        /// Gets or sets the secondNoteOffset value.
-        /// </summary>
-        public double SecondNoteOffset
-        {
-            get { return this.secondNoteOffset; }
-            set { this.secondNoteOffset = value; }
         }
         
         /// <summary>
