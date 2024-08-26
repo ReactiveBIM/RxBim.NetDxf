@@ -1461,7 +1461,6 @@ namespace netDxf
 
             // add default text style
             this.textStyles.Add(TextStyle.Default);
-            // this.textStyles.Add(new TextStyle("ГОСТ", "GOST Common.ttf"));
 
             // add default application registry
             this.appRegistries.Add(ApplicationRegistry.Default);
