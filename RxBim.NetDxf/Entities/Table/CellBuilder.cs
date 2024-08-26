@@ -67,7 +67,7 @@ public sealed class CellBuilder
     /// <summary>
     /// Sets the cell text height.
     /// </summary>
-    /// <param name="value">Text.</param>
+    /// <param name="value">Text height.</param>
     public CellBuilder WithTextHeight(double value)
     {
         textHeight = value;
@@ -87,6 +87,7 @@ public sealed class CellBuilder
     /// <summary>
     /// Sets the flag whether the cell is merged.
     /// </summary>
+    /// <param name="value">True or False.</param>
     public CellBuilder IsMerged(bool value)
     {
         isMerged = value;
@@ -96,6 +97,7 @@ public sealed class CellBuilder
     /// <summary>
     /// Sets horizontal merged cells count.
     /// </summary>
+    /// <param name="value">Count.</param>
     public CellBuilder WithHorizontalMergedCellsCount(int value)
     {
         horizontalMergedCellsCount = value;
@@ -105,6 +107,7 @@ public sealed class CellBuilder
     /// <summary>
     /// Sets vertical merged cells count.
     /// </summary>
+    /// <param name="value">Count.</param>
     public CellBuilder WithVerticalMergedCellsCount(int value)
     {
         verticalMergedCellsCount = value;

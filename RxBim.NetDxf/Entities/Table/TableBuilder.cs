@@ -92,7 +92,7 @@ public sealed class TableBuilder
     /// <summary>
     /// Sets the table row heights. 1 value per row or one value for all rows.
     /// </summary>
-    /// <param name="value"></param>
+    /// <param name="value">Collection of row heights.</param>
     public TableBuilder WithRowHeights(IReadOnlyList<double> value)
     {
         rowHeights.AddRange(value);
@@ -102,7 +102,7 @@ public sealed class TableBuilder
     /// <summary>
     /// Sets the table column widths. 1 value per row or one value for all rows.
     /// </summary>
-    /// <param name="value"></param>
+    /// <param name="value">Collection of column widths.</param>
     public TableBuilder WithColumnWidths(IReadOnlyList<double> value)
     {
         columnWidths.AddRange(value);
@@ -112,7 +112,7 @@ public sealed class TableBuilder
     /// <summary>
     /// Sets the table text style.
     /// </summary>
-    /// <param name="value">Style.</param>
+    /// <param name="value">Text style.</param>
     public TableBuilder WithTextStyle(TextStyle value)
     {
         textStyle = value;
