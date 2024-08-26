@@ -23,15 +23,12 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text;
 using netDxf.Blocks;
 using netDxf.Collections;
 using netDxf.Entities;
+using netDxf.Entities.Table;
 using netDxf.Header;
 using netDxf.Objects;
 using netDxf.Tables;
@@ -41,6 +38,7 @@ using Image = netDxf.Entities.Image;
 using Point = netDxf.Entities.Point;
 using TextAlignment = netDxf.Entities.TextAlignment;
 using Trace = netDxf.Entities.Trace;
+// ReSharper disable RedundantCast
 
 namespace netDxf.IO
 {
@@ -553,7 +551,7 @@ namespace netDxf.IO
             }
             this.chunk.Write(330, "0");
 
-            this.chunk.Write(100, SubclassMarker.Table);
+            this.chunk.Write(100, SubclassMarker.SymbolTable);
             this.chunk.Write(70, numEntries); // this code is obsolete, there is no limit for the number of entries except for layouts according to the AutoCad ActiveX documentation
 
             if (table == DxfObjectCode.DimensionStyleTable)
@@ -2069,6 +2067,9 @@ namespace netDxf.IO
                     break;
                 case EntityType.XLine:
                     this.WriteXLine((XLine) entity);
+                    break;
+                case EntityType.Table:
+                    WriteTable((Table) entity);
                     break;
                 default:
                     throw new ArgumentException("Entity unknown.", nameof(entity));
@@ -4735,6 +4736,118 @@ namespace netDxf.IO
             this.chunk.Write(132, vp.UcsYAxis.Z);
 
             this.WriteXData(vp.XData);
+        }
+        
+        private void WriteTable(Table table)
+        {
+            chunk.Write(100, SubclassMarker.BlockReference);
+            chunk.Write(2, Table.BlockNameBegin + Guid.NewGuid());
+            
+            chunk.Write(10, table.Position.X);
+            chunk.Write(20, table.Position.Y);
+            chunk.Write(30, table.Position.Z);
+            
+            chunk.Write(100, SubclassMarker.Table);
+
+            chunk.Write(11, table.Direction.X);
+            chunk.Write(21, table.Direction.Y);
+            chunk.Write(31, table.Direction.Z);
+            
+            chunk.Write(40, table.HorizontalMargin);
+            chunk.Write(41, table.VerticalMargin);
+            
+            chunk.Write(91, table.RowsCount);
+            chunk.Write(92, table.ColumnsCount);
+
+            WriteRowHeights(table);
+            WriteColumnWidths(table);
+
+            WriteCells(table.Cells, table.TextStyle.Name);
+
+            WriteXData(table.XData);
+        }
+        
+        private void WriteRowHeights(Table table)
+        {
+            if (table.RowHeights.Count == 0)
+            {
+                return;
+            }
+            
+            for (var i = 0; i < table.RowsCount; i++)
+            {
+                chunk.Write(141, table.RowHeights.Count == 1 ? table.RowHeights[0] : table.RowHeights[i]);
+            }
+        }
+
+        private void WriteColumnWidths(Table table)
+        {
+            if (table.ColumnWidths.Count == 0)
+            {
+                return;
+            }
+            
+            for (var i = 0; i < table.ColumnsCount; i++)
+            {
+                chunk.Write(142, table.ColumnWidths.Count == 1 ? table.ColumnWidths[0] : table.ColumnWidths[i]);
+            }
+        }
+
+        private void WriteCells(IReadOnlyCollection<Cell> cells, string textStyle)
+        {
+            foreach (var cell in cells)
+            {
+                WriteCommonCellData(cell);
+
+                switch (cell.Type)
+                {
+                    case CellType.Text:
+                        WriteTextCellData(cell, textStyle);
+                        break;
+                    case CellType.Block:
+                        WriteBlockCellData(cell);
+                        break;
+                    default:
+                        throw new ArgumentException("Cell type unknown.");
+                }
+            }
+        }
+        
+        private void WriteCommonCellData(Cell cell)
+        {
+            chunk.Write(171, (short)cell.Type);
+            chunk.Write(173, cell.IsMerged ? (short)1 : (short)0);
+            chunk.Write(175, (short)cell.HorizontalMergedCount);
+            chunk.Write(176, (short)cell.VerticalMergedCount);
+            chunk.Write(145, cell.Rotation * (float)Math.PI / 180F); // convert degrees to radians
+            chunk.Write(170, (short)cell.Alignment);
+            chunk.Write(91, 262177); // unknown code functionality <- 32-bit integer value
+        }
+
+        private void WriteTextCellData(Cell cell, string textStyle)
+        {
+            chunk.Write(140, cell.TextHeight);
+            chunk.Write(7, EncodeNonAsciiCharacters(textStyle));
+
+            chunk.Write(301, Cell.CellValueBegin);
+            chunk.Write(90, 4); // unknown code functionality <- 32-bit integer value
+            chunk.Write(1, EncodeNonAsciiCharacters(cell.Text));
+            chunk.Write(300, string.Empty);
+            chunk.Write(302, EncodeNonAsciiCharacters(cell.Text));
+            chunk.Write(304, Cell.CellValueEnd);
+        }
+
+        private void WriteBlockCellData(Cell cell)
+        {
+            chunk.Write(340, cell.Insert.Block.Owner.Handle);
+            chunk.Write(144, Cell.DefaultScale);
+            
+            chunk.Write(301, Cell.CellValueBegin);
+            chunk.Write(90, 4); // unknown code functionality <- 32-bit integer value
+            chunk.Write(1, string.Empty);
+            chunk.Write(300, string.Empty);
+            chunk.Write(302, string.Empty);
+            chunk.Write(304, Cell.CellValueEnd);
         }
 
         #endregion
