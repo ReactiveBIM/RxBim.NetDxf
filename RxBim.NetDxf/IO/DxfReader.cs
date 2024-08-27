@@ -1220,7 +1220,7 @@ namespace netDxf.IO
                         this.chunk.Next();
                         break;
                     case 100:
-                        Debug.Assert(this.chunk.ReadString() == SubclassMarker.Table || this.chunk.ReadString() == SubclassMarker.DimensionStyleTable);
+                        Debug.Assert(this.chunk.ReadString() == SubclassMarker.SymbolTable || this.chunk.ReadString() == SubclassMarker.DimensionStyleTable);
                         this.chunk.Next();
                         break;
                     case 1001:
