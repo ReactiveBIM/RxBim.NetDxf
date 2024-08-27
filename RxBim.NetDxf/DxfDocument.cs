@@ -29,6 +29,7 @@ using System.IO;
 using netDxf.Blocks;
 using netDxf.Collections;
 using netDxf.Entities;
+using netDxf.Entities.Table;
 using netDxf.Header;
 using netDxf.IO;
 using netDxf.Objects;
@@ -994,6 +995,41 @@ namespace netDxf
                     viewport.ClippingBoundaryAdded += this.Viewport_ClippingBoundaryAdded;
                     viewport.ClippingBoundaryRemoved += this.Viewport_ClippingBoundaryRemoved;
                     break;
+                case EntityType.Table:
+                    var table = (Table)entity;
+                    table.TextStyle = textStyles.Add(table.TextStyle, assignHandle);
+                    textStyles.References[table.TextStyle.Name].Add(table);
+                    table.TextStyleChanged += Entity_TextStyleChanged;
+
+                    foreach (var cell in table.Cells.Where(cell => cell.Type is CellType.Block))
+                    {
+                        if (cell.Insert is null)
+                        {
+                            throw new InvalidOperationException("The insert in the cell is missing.");
+                        }
+                        
+                        cell.Insert.Block = blocks.Add(cell.Insert.Block, assignHandle);
+                        blocks.References[cell.Insert.Block.Name].Add(cell.Insert);
+
+                        foreach (var attribute in cell.Insert.Attributes)
+                        {
+                            attribute.Layer = layers.Add(attribute.Layer, assignHandle);
+                            layers.References[attribute.Layer.Name].Add(attribute);
+                            attribute.LayerChanged += Entity_LayerChanged;
+
+                            attribute.Linetype = linetypes.Add(attribute.Linetype, assignHandle);
+                            linetypes.References[attribute.Linetype.Name].Add(attribute);
+                            attribute.LinetypeChanged += Entity_LinetypeChanged;
+
+                            attribute.Style = textStyles.Add(attribute.Style, assignHandle);
+                            textStyles.References[attribute.Style.Name].Add(attribute);
+                            attribute.TextStyleChanged += Entity_TextStyleChanged;
+                        }
+                        
+                        cell.Insert.AttributeAdded += Insert_AttributeAdded;
+                        cell.Insert.AttributeRemoved += Insert_AttributeRemoved;
+                    }
+                    break;
                 default:
                     throw new ArgumentException("The entity " + entity.Type + " is not implemented or unknown.");
             }
@@ -1196,7 +1232,28 @@ namespace netDxf
                     }
                     viewport.ClippingBoundaryAdded -= this.Viewport_ClippingBoundaryAdded;
                     viewport.ClippingBoundaryRemoved -= this.Viewport_ClippingBoundaryRemoved;
+                    break;
+                case EntityType.Table:
+                    var table = (Table)entity;
+                    textStyles.References[table.TextStyle.Name].Remove(entity);
+                    table.TextStyleChanged -= Entity_TextStyleChanged;
 
+                    foreach (var cell in table.Cells.Where(cell => cell.Type is CellType.Block))
+                    {
+                        blocks.References[cell.Insert.Block.Name].Remove(entity);
+                        foreach (var att in cell.Insert.Attributes)
+                        {
+                            layers.References[att.Layer.Name].Remove(att);
+                            att.LayerChanged -= Entity_LayerChanged;
+                            linetypes.References[att.Linetype.Name].Remove(att);
+                            att.LinetypeChanged -= Entity_LinetypeChanged;
+                            textStyles.References[att.Style.Name].Remove(att);
+                            att.TextStyleChanged -= Entity_TextStyleChanged;
+                        }
+                        cell.Insert.AttributeAdded -= Insert_AttributeAdded;
+                        cell.Insert.AttributeRemoved -= Insert_AttributeRemoved;
+                    }
+                    
                     break;
                 default:
                     throw new ArgumentException("The entity " + entity.Type + " is not implemented or unknown");
