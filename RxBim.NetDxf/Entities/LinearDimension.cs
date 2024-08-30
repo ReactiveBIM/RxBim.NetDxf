@@ -42,7 +42,7 @@ namespace netDxf.Entities
         private Vector2 secondRefPoint;
         private double offset;
         private double rotation;
-        private double dimSecondLineScaleFactor = 0.625;
+        private double dimLeaderTextLineScaleFactor = 0.625;
 
         #endregion
 
@@ -115,7 +115,6 @@ namespace netDxf.Entities
                 new List<Vector3> {referenceLine.StartPoint, referenceLine.EndPoint}, normal, CoordinateSystem.World, CoordinateSystem.Object);
             this.firstRefPoint = new Vector2(ocsPoints[0].X, ocsPoints[0].Y);
             this.secondRefPoint = new Vector2(ocsPoints[1].X, ocsPoints[1].Y);
-            this.textRefPoint = Vector2.MidPoint(firstRefPoint, secondRefPoint);
 
             this.offset = offset;
             this.rotation = MathHelper.NormalizeAngle(rotation);
@@ -152,7 +151,6 @@ namespace netDxf.Entities
         {
             this.firstRefPoint = firstPoint;
             this.secondRefPoint = secondPoint;
-            this.textRefPoint = Vector2.MidPoint(firstPoint, secondPoint);
             this.offset = offset;
             this.rotation = MathHelper.NormalizeAngle(rotation);
             this.Style = style ?? throw new ArgumentNullException(nameof(style));
@@ -173,12 +171,12 @@ namespace netDxf.Entities
         }
         
         /// <summary>
-        /// Gets or sets the dimSecondLineScaleFactor value.
+        /// Gets or sets the dimLeaderTextLineScaleFactor value - the line below the leader text.
         /// </summary>
-        public double DimSecondLineScaleFactor
+        public double DimLeaderTextLineScaleFactor
         {
-            get { return this.dimSecondLineScaleFactor; }
-            set { this.dimSecondLineScaleFactor = value; }
+            get { return this.dimLeaderTextLineScaleFactor; }
+            set { this.dimLeaderTextLineScaleFactor = value; }
         }
 
         /// <summary>

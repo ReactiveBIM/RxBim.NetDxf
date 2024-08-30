@@ -872,10 +872,10 @@ namespace netDxf.Entities
             List<string> texts = FormatDimensionText(measure, dim.DimensionType, dim.UserText, style, dim.Owner);
             MText mText = DimensionText(middlePoint + gap * vec, MTextAttachmentPoint.BottomCenter, textRot, texts[0], style);
             //MText mText = DimensionText(Vector2.Polar(textRef, (style.TextOffset + style.TextHeight*0.5) * style.DimScaleOverall, textRot + MathHelper.HalfPI), MTextAttachmentPoint.MiddleCenter, textRot, texts[0], style);
-
+            
             if (mText != null)
             {
-                if (!IsPointOnSegment(new Line(dim.FirstReferencePoint, dim.SecondReferencePoint), dim.TextReferencePoint) &&
+                if (dim.TextPositionManuallySet && !IsPointOnSegment(dim.FirstReferencePoint, dim.SecondReferencePoint, dim.TextReferencePoint) &&
                     style.FitTextMove == DimensionStyleFitTextMove.OverDimLineWithLeader)
                 {
                     var thirdVector2 = Vector2.Normalize(dimRef2 - middlePoint);
@@ -884,8 +884,8 @@ namespace netDxf.Entities
                     if (dimRef1ToRefPoint <= dimRef2ToRefPoint)
                         thirdVector2 = -thirdVector2;
                     
-                    var thirdVertex = dim.TextReferencePoint + thirdVector2 * texts[0].Length * style.DimScaleOverall *
-                        style.TextHeight * dim.DimSecondLineScaleFactor;
+                    var thirdVertex = dim.TextReferencePoint + thirdVector2 * (texts[0].Length + style.LengthPrecision) * style.DimScaleOverall *
+                        style.TextHeight * dim.DimLeaderTextLineScaleFactor;
                     
                     entities.Add(new Line(middlePoint, dim.TextReferencePoint));
                     entities.Add(new Line(dim.TextReferencePoint, thirdVertex));
@@ -1703,25 +1703,20 @@ namespace netDxf.Entities
             //return new Block(name, entities, null, false) {Flags = BlockTypeFlags.AnonymousBlock};
         }
         
-        private static bool IsPointOnSegment(Line l, Vector2 p)
+        private static bool IsPointOnSegment(Vector2 startPoint, Vector2 endPoint, Vector2 p)
         {
-            double crossProduct = (p.Y - l.StartPoint.Y) * (l.EndPoint.X - l.StartPoint.X) -
-                                  (p.X - l.StartPoint.X) * (l.EndPoint.Y - l.StartPoint.Y);
+            double crossProduct = (p.Y - startPoint.Y) * (endPoint.X - startPoint.X) -
+                                  (p.X - startPoint.X) * (endPoint.Y - startPoint.Y);
 
             if (Math.Abs(crossProduct) > Double.Epsilon)
             {
                 return false;
             }
 
-            double dotProduct = (p.X - l.StartPoint.X) * (l.EndPoint.X - l.StartPoint.X) +
-                                (p.Y - l.StartPoint.Y) * (l.EndPoint.Y - l.StartPoint.Y);
-            if (dotProduct < 0 || dotProduct > (l.EndPoint.X - l.StartPoint.X) * (l.EndPoint.X - l.StartPoint.X) +
-                (l.EndPoint.Y - l.StartPoint.Y) * (l.EndPoint.Y - l.StartPoint.Y))
-            {
-                return false;
-            }
-
-            return true;
+            double dotProduct = (p.X - startPoint.X) * (endPoint.X - startPoint.X) +
+                                (p.Y - startPoint.Y) * (endPoint.Y - startPoint.Y);
+            return !(dotProduct < 0 || dotProduct > (endPoint.X - startPoint.X) * (endPoint.X - startPoint.X) +
+                (endPoint.Y - startPoint.Y) * (endPoint.Y - startPoint.Y));
         }
 
 
