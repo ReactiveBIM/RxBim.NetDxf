@@ -872,20 +872,30 @@ namespace netDxf.Entities
             List<string> texts = FormatDimensionText(measure, dim.DimensionType, dim.UserText, style, dim.Owner);
             MText mText = DimensionText(middlePoint + gap * vec, MTextAttachmentPoint.BottomCenter, textRot, texts[0], style);
             //MText mText = DimensionText(Vector2.Polar(textRef, (style.TextOffset + style.TextHeight*0.5) * style.DimScaleOverall, textRot + MathHelper.HalfPI), MTextAttachmentPoint.MiddleCenter, textRot, texts[0], style);
+            var textWidth = (texts[0].Length + style.LengthPrecision) * style.DimScaleOverall *
+                            style.TextHeight * dim.DimLeaderTextLineScaleFactor;
             
             if (mText != null)
             {
-                if (dim.TextPositionManuallySet && !IsPointOnSegment(dim.FirstReferencePoint, dim.SecondReferencePoint, dim.TextReferencePoint) &&
+                if (((dim.TextPositionManuallySet &&
+                     !IsPointOnSegment(dim.FirstReferencePoint, dim.SecondReferencePoint, dim.TextReferencePoint))
+                    || measure <= textWidth) &&
                     style.FitTextMove == DimensionStyleFitTextMove.OverDimLineWithLeader)
                 {
+                    if (measure <= textWidth)
+                    {
+                        var newRefPoint = middlePoint +
+                                          dirRef1 * (2 * style.ExtLineExtend + style.TextOffset + style.TextHeight / 2);
+                        dim.TextReferencePoint = newRefPoint;
+                    }
+
                     var thirdVector2 = Vector2.Normalize(dimRef2 - middlePoint);
                     var dimRef2ToRefPoint = Vector2.Distance(dimRef2, dim.TextReferencePoint);
                     var dimRef1ToRefPoint = Vector2.Distance(dimRef1, dim.TextReferencePoint);
                     if (dimRef1ToRefPoint <= dimRef2ToRefPoint)
                         thirdVector2 = -thirdVector2;
                     
-                    var thirdVertex = dim.TextReferencePoint + thirdVector2 * (texts[0].Length + style.LengthPrecision) * style.DimScaleOverall *
-                        style.TextHeight * dim.DimLeaderTextLineScaleFactor;
+                    var thirdVertex = dim.TextReferencePoint + thirdVector2 * textWidth;
                     
                     entities.Add(new Line(middlePoint, dim.TextReferencePoint));
                     entities.Add(new Line(dim.TextReferencePoint, thirdVertex));
