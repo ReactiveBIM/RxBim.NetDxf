@@ -61,6 +61,8 @@ namespace netDxf
         internal int DimensionBlocksIndex;
         // keeps track of the group names generated (this groups have the isUnnamed set to true)
         internal int GroupNamesIndex;
+        // keeps track of the table blocks generated
+        internal int TableBlocksIndex;
 
         #region header
 
@@ -171,6 +173,7 @@ namespace netDxf
             this.NumHandles = this.AssignHandle(0);
             this.DimensionBlocksIndex = -1;
             this.GroupNamesIndex = 0;
+            this.TableBlocksIndex = -1;
             this.entities = new DrawingEntities(this);
 
             this.AddedObjects = new ObservableDictionary<string, DxfObject>(StringComparer.InvariantCultureIgnoreCase);
@@ -997,6 +1000,12 @@ namespace netDxf
                     break;
                 case EntityType.Table:
                     var table = (Table)entity;
+                    
+                    table.Block = new Block("TableBlock");
+                    table.Block.SetName("*T" + ++TableBlocksIndex, false);
+                    blocks.Add(table.Block, assignHandle);
+                    blocks.References[table.Block.Name].Add(table.Block);
+                    
                     table.TextStyle = textStyles.Add(table.TextStyle, assignHandle);
                     textStyles.References[table.TextStyle.Name].Add(table);
                     table.TextStyleChanged += Entity_TextStyleChanged;
