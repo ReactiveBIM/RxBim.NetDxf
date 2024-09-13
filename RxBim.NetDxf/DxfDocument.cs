@@ -1001,6 +1001,7 @@ namespace netDxf
                 case EntityType.Table:
                     var table = (Table)entity;
                     
+                    // TODO: Remove when the implementation of the ReadAcadTable method in the DxfReader class changes.
                     table.Block = new Block("TableBlock");
                     table.Block.SetName("*T" + ++TableBlocksIndex, false);
                     blocks.Add(table.Block, assignHandle);
