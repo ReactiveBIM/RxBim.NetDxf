@@ -31,7 +31,7 @@ namespace netDxf
     internal static class SubclassMarker
     {
         public const string ApplicationId = "AcDbRegAppTableRecord";
-        public const string Table = "AcDbSymbolTable";
+        public const string SymbolTable = "AcDbSymbolTable";
         public const string TableRecord = "AcDbSymbolTableRecord";
         public const string Layer = "AcDbLayerTableRecord";
         public const string VPort = "AcDbViewportTableRecord";
@@ -102,5 +102,7 @@ namespace netDxf
         public const string Group = "AcDbGroup";
         public const string Layout = "AcDbLayout";
         public const string PlotSettings = "AcDbPlotSettings";
+        public const string BlockReference = "AcDbBlockReference";
+        public const string Table = "AcDbTable";
     }
 }

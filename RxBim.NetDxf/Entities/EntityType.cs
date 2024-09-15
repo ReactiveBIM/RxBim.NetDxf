@@ -173,6 +173,11 @@ namespace netDxf.Entities
         /// <summary>
         /// XLine entity.
         /// </summary>
-        XLine
+        XLine,
+        
+        /// <summary>
+        /// Table entity.
+        /// </summary>
+        Table
     }
 }

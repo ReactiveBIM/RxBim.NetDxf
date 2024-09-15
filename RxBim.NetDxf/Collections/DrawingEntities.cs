@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using netDxf.Entities;
+using netDxf.Entities.Table;
 using netDxf.Objects;
 using Trace = netDxf.Entities.Trace;
 
@@ -315,6 +316,14 @@ namespace netDxf.Collections
             get { return this.document.Layouts[this.activeLayout].AssociatedBlock.Entities.OfType<Wipeout>(); }
         }
 
+        /// <summary>
+        /// Gets the list of <see cref="Table">tables</see> in the active layout.
+        /// </summary>
+        public IEnumerable<Table> Tables
+        {
+            get { return this.document.Layouts[this.activeLayout].AssociatedBlock.Entities.OfType<Table>(); }
+        }
+        
         ///// <summary>
         ///// Gets the list of <see cref="AttributeDefinition">attribute definitions</see> in the active layout.
         ///// </summary>
