@@ -1,49 +1,46 @@
-﻿На данный момент таблица записывается в файл, но не читается. 
+﻿At the moment, the table may be written to a file without a table block definition but not read.
 
-Таблица имеет следующие свойства:
-* Layer - задается слой таблицы
-* Position - позиция
-* Direction - направление по X или Y
-* RowsCount - количество строк, по умолчанию стоит 1, чтобы не ломался dxf документ
-* ColumnsCount - количество столбцов, по умолчанию стоит 1, чтобы не ломался dxf документ
-* Cells - список всех ячеек таблицы
-* RowHeights - список высоты строк, должно соответствовать их кол-ву
-* ColumnWidths - список ширины строк, должно соответствовать их кол-ву
-* TextStyle - стиль текста, по умолчанию стоит Standard, чтобы не было исключения
-* HorizontalMargin - горизонтальный марджин всех ячеек в таблице
-* VerticalMargin - вертикальный марджин всех ячеек в таблице
-* Block - нужен временно для устранения ошибки чтения документа. После изменения реализации метода ReadAcadTable в классе DxfReader нужно будет удалить.
+The table has the following properties:
+* Layer: specifies the table layer
+* Position: position
+* Direction: direction along X or Y
+* RowsCount: number of rows, default is 1 so as not to break the DXF document
+* ColumnsCount: number of columns, default is 1 so as not to break the DXF document
+* Cells: list of all table cells
+* RowHeights: list of row heights, must match the number of rows
+* ColumnWidths: list of column widths, must match the number of columns
+* TextStyle: text style, default is "Standard" to avoid exceptions
+* HorizontalMargin: horizontal margin for all table cells
+* VerticalMargin: vertical margin for all table cells
+* Block: temporarily needed to fix document reading error. It will need to be removed after changing the implementation of the ReadAcadTable method in the DxfReader class.
 
 
-Таблица состоит из ячеек, которые имеют следующие свойства:
-* Type - тип ячейки (Текст или блок)
-* Alignment - выравнивание контента внутри ячейки
-* Rotation - поворот контента ячейки
-* Text - значение текста
-* TextHeight - высота текста
-* Insert - инсерт с блоком для ячейки с типом “Блок“
-* IsMerged - признак объединенной ячейки, по умолчанию false
-* MergedCellBorderWidth - количество горизонтально объединенных ячеек
-* MergedCellBorderHeight - количество вертикально объединенных ячеек
+The table consists of cells with the following properties:
+* Type: type of cell (Text or Block)
+* Alignment: content alignment inside the cell
+* Rotation: content rotation of the cell
+* Text: text value
+* TextHeight: text height
+* Insert: insert with a block for the cell of type “Block”
+* IsMerged: merged cell indicator, default is false
+* MergedCellBorderWidth: number of horizontally merged cells
+* MergedCellBorderHeight: number of vertically merged cells
 
-Несколько фишек:
+A few features:
+* You can omit specifying the width and height of the cells, and only set margins, then the cells will automatically adjust to the content and align to the maximum width and height.
+* If the cells contain only text data, you can omit the cell type.
+* If the data in the cells is always centered, you can omit the Alignment.
+* You can set a single value for RowHeights that will apply to all rows in the table.
+* You can set a single value for ColumnWidths that will apply to all columns in the table.
+* Direction is set to X by default.
+* Rotation is 0 by default, i.e., aligned with the X-axis.
 
-* Можно не задавать ширину и высоту ячеек, а задать только марджины, тогда ячейки сами подстроятся под контент и выровняются по наибольшей ширине и высоте
-* Если в ячейках только текстовые данные, то можно не задавать тип ячейки
-* Если данные в ячейках всегда по центру, то можно не задавать Allignment
-* Можно задать одно значение для RowHeights, которое применится ко всем строкам в таблице
-* Можно задать одно значение для ColumnWidths, которое применится ко всем строкам в таблице
-* Direction по умолчанию стоит по Х
-* Rotation по умолчанию будет 0, т.е. по Х
-
-Для начала создадим пустой список, куда будем добавлять ячейки,
-и билдер ячеек, чтобы не пересоздавать его каждый раз.
+First, let's create an empty list to add cells to and a cell builder so that we don't have to recreate it every time.
 
     var cells = new List<Cell>();
     var cellBuilder = CellBuilder.Empty();
 
-Создаём данные для ячеек заголовка. Так как они объединённые, в первой должно быть указано количество объединяемых ячеек
-по горизонтали, в остальных 1.
+Creating data for the header cells. Since they are merged, the first one should indicate the number of horizontally merged cells, while the others should be set to 1.
 
     var titleCellsData = new HeaderCellInformation[]
     {
@@ -54,8 +51,7 @@
         new(string.Empty, 1)
     };
 
-Добавляем в список. У всех ячеек признак объединения будет стоять в true.
-    
+Adding them to the list. All cells will have the IsMerged property set to true.    
     cells.AddRange(
         titleCellsData.Select(
             data => cellBuilder
@@ -65,8 +61,8 @@
                 .WithTextHeight(250)
                 .Build()));
 
-Создаём ячейки для заголовков столбцов. Здесь просто строковые значения.
-    
+Creating cells for column headers. These are just string values.    
+
     var headerRowCellsData = new[] 
     { 
         "Заголовок", 
@@ -83,12 +79,8 @@
                 .WithTextHeight(250)
                 .Build()));
 
-Дальше идут ячейки с данными. 
-Здесь указываем тип ячейки, содержимое ячейки (текст либо Insert, который содержит Block),
-а так же признак объединения ячеек и их количество, и угол поворота содержимого ячейки.
-
-В таблице 5 колонок, следовательно, первые 5 ячеек запишутся по порядку в первую строку, вторые 5 - во вторую.
-Это нужно учитывать при вертикальном объединении ячеек.
+Next come the data cells. Here we specify the cell type, cell content (text or Insert containing a Block), as well as the merged cell indicator, the number of merged cells, and the content rotation angle.
+The table has 5 columns, so the first 5 cells will be written to the first row, and the next 5 to the second row. This should be taken into account for vertical cell merging.
 
         var cellsData = new CellInformation[]
         {
@@ -116,13 +108,9 @@
                     .WithRotation(data.Rotation)
                     .Build()));
 
-Создаём таблицу. Здесь указываем слой, позицию, количество строк, включая заголовок, и названия колонок.
-Высоту строк указываем для каждой строки, либо можно задать одну для всех строк. То же самое и для ширины колонок.
-В данном примере высота строк будет разная, а ширина колонок одинаковая.
+Creating the table. Here, we specify the layer, position, the number of rows (including the header), and the column names. Row heights are specified for each row, or you can set one value for all rows. The same applies to column widths. In this example, the row heights will be different, and the column widths will be the same.
 
-Дальше передаем выше созданные ячейки и стиль текста.
-Можно задать вертикальный и горизонтальный марджин для всей таблицы.
-Также можно указать Direction, если надо развернуть, по оси Y. По дефолту установлено в UnitX.
+We then pass the previously created cells and text style. You can set the vertical and horizontal margins for the entire table. You can also specify the Direction if you need to rotate along the Y-axis. By default, it is set to UnitX.
 
     document.Add(() =>
         TableBuilder
@@ -137,7 +125,7 @@
             .WithTextStyle(textStyle)
             .Build());
 
-Рекорды для ячеек, в которых хранится их описание.
+Records for cells that store their descriptions:
     
     private record HeaderCellInformation(string Text, int MergedCellsCount);
 
