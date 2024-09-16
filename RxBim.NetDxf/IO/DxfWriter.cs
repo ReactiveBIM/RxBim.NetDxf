@@ -4741,7 +4741,7 @@ namespace netDxf.IO
         private void WriteTable(Table table)
         {
             chunk.Write(100, SubclassMarker.BlockReference);
-            chunk.Write(2, Table.BlockNameBegin + Guid.NewGuid());
+            chunk.Write(2, table.Block.Name);
             
             chunk.Write(10, table.Position.X);
             chunk.Write(20, table.Position.Y);
@@ -4819,7 +4819,7 @@ namespace netDxf.IO
             chunk.Write(173, cell.IsMerged ? (short)1 : (short)0);
             chunk.Write(175, (short)cell.HorizontalMergedCount);
             chunk.Write(176, (short)cell.VerticalMergedCount);
-            chunk.Write(145, cell.Rotation * (float)Math.PI / 180F); // convert degrees to radians
+            chunk.Write(145, cell.Rotation * MathHelper.DegToRad);
             chunk.Write(170, (short)cell.Alignment);
             chunk.Write(91, 262177); // unknown code functionality <- 32-bit integer value
         }

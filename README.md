@@ -72,6 +72,7 @@ See [changelog.txt](https://github.com/haplokuon/netDxf/blob/master/doc/Changelo
 * Underlay (DGN, DWF, and PDF underlays)
 * Wipeout
 * XLine (aka construction line)
+* Table (creating only)
 
 All entities can be grouped.
 All DXF objects may contain extended data information. 

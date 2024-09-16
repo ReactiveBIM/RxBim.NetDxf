@@ -1,4 +1,5 @@
-﻿using netDxf.Tables;
+﻿using netDxf.Blocks;
+using netDxf.Tables;
 
 namespace netDxf.Entities.Table;
 
@@ -17,9 +18,9 @@ public sealed class Table : EntityObject
     }
     
     /// <summary>
-    /// Block name; an anonymous block begins with a "*T" (from documentation).
+    /// Gets or sets the table block.
     /// </summary>
-    public const string BlockNameBegin = "*T_";
+    public Block Block { get; set; }
 
     /// <summary>
     /// Gets or sets the table position in world coordinates.
