@@ -42,6 +42,7 @@ namespace netDxf.Entities
         private Vector2 secondRefPoint;
         private double offset;
         private double rotation;
+        private double dimLeaderTextLineScaleFactor = 0.625;
 
         #endregion
 
@@ -114,6 +115,7 @@ namespace netDxf.Entities
                 new List<Vector3> {referenceLine.StartPoint, referenceLine.EndPoint}, normal, CoordinateSystem.World, CoordinateSystem.Object);
             this.firstRefPoint = new Vector2(ocsPoints[0].X, ocsPoints[0].Y);
             this.secondRefPoint = new Vector2(ocsPoints[1].X, ocsPoints[1].Y);
+
             this.offset = offset;
             this.rotation = MathHelper.NormalizeAngle(rotation);
             this.Style = style ?? throw new ArgumentNullException(nameof(style));
@@ -166,6 +168,15 @@ namespace netDxf.Entities
         {
             get { return this.firstRefPoint; }
             set { this.firstRefPoint = value; }
+        }
+        
+        /// <summary>
+        /// Gets or sets the dimLeaderTextLineScaleFactor value - the line below the leader text.
+        /// </summary>
+        public double DimLeaderTextLineScaleFactor
+        {
+            get { return this.dimLeaderTextLineScaleFactor; }
+            set { this.dimLeaderTextLineScaleFactor = value; }
         }
 
         /// <summary>
