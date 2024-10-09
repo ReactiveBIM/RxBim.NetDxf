@@ -335,6 +335,21 @@ namespace netDxf.Entities
         }
 
         /// <summary>
+        /// Validation function
+        /// </summary>
+        protected override void Validate()
+        {
+            if (defPoint.Equals(firstPoint))
+                throw new ArgumentException("defPoint is equal to firstPoint");
+            
+            if (defPoint.Equals(secondPoint))
+                throw new ArgumentException("defPoint is equal to secondPoint");
+            
+            if (firstPoint.Equals(secondPoint))
+                throw new ArgumentException("firstPoint is equal to secondPoint");
+        }
+
+        /// <summary>
         /// Creates a new OrdinateDimension that is a copy of the current instance.
         /// </summary>
         /// <returns>A new OrdinateDimension that is a copy of this instance.</returns>

@@ -408,6 +408,15 @@ namespace netDxf.Entities
         }
 
         /// <summary>
+        /// Validation function
+        /// </summary>
+        protected override void Validate()
+        {
+            if(firstRefPoint.Equals(secondRefPoint))
+                throw new ArgumentException("First point is equal to second Point.");
+        }
+
+        /// <summary>
         /// Creates a new LinearDimension that is a copy of the current instance.
         /// </summary>
         /// <returns>A new LinearDimension that is a copy of this instance.</returns>
