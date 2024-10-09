@@ -347,6 +347,12 @@ namespace netDxf.Entities
             
             if (firstPoint.Equals(secondPoint))
                 throw new ArgumentException("firstPoint is equal to secondPoint");
+            
+            if(textRefPoint.Equals(firstPoint))
+                throw new ArgumentException("textRefPoint is equal to firstPoint.");
+            
+            if(textRefPoint.Equals(secondPoint))
+                throw new ArgumentException("textRefPoint is equal to secondPoint.");
         }
 
         /// <summary>
