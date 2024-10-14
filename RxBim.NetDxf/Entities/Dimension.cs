@@ -330,7 +330,7 @@ namespace netDxf.Entities
         #region virtual methods
 
         /// <summary>
-        /// Validation function
+        /// Validates data
         /// </summary>
         protected virtual void Validate()
         {

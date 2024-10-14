@@ -408,7 +408,7 @@ namespace netDxf.Entities
         }
 
         /// <summary>
-        /// Validation function
+        /// Validates data
         /// </summary>
         protected override void Validate()
         {
