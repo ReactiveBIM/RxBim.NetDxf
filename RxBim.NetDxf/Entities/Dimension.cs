@@ -324,7 +324,18 @@ namespace netDxf.Entities
         /// <param name="name">Name to be assigned to the generated block.</param>
         /// <returns> The block that represents the actual dimension.</returns>
         protected abstract Block BuildBlock(string name);
+        
+        #endregion
 
+        #region virtual methods
+
+        /// <summary>
+        /// Validates data
+        /// </summary>
+        protected virtual void Validate()
+        {
+        }
+        
         #endregion
 
         #region public methods
@@ -337,6 +348,7 @@ namespace netDxf.Entities
         /// </remarks>
         public void Update()
         {
+            this.Validate();
             this.CalculateReferencePoints();
 
             if (this.block != null)
