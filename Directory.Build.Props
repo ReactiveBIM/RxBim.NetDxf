@@ -10,7 +10,7 @@
         <TargetFrameworks>net6.0;net8.0;net48</TargetFrameworks>
         <Nullable>disable</Nullable>
         <LangVersion>12</LangVersion>
-        <Version>1.0.4</Version>
+        <Version>1.0.5</Version>
         <ImplicitUsings>true</ImplicitUsings>
     </PropertyGroup>
     <PropertyGroup>

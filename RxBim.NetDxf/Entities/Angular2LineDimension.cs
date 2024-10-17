@@ -538,6 +538,30 @@ namespace netDxf.Entities
         {
             return DimensionBlock.Build(this, name);
         }
+        
+        /// <summary>
+        /// Validates data
+        /// </summary>
+        protected override void Validate()
+        {
+            if(startFirstLine.Equals(endFirstLine))
+                throw new ArgumentException("startFirstLine is equal to endFirstLine.");
+            
+            if(startSecondLine.Equals(endSecondLine))
+                throw new ArgumentException("startSecondLine is equal to endSecondLine.");
+            
+            if(textRefPoint.Equals(startFirstLine))
+                throw new ArgumentException("textRefPoint is equal to startFirstLine.");
+            
+            if(textRefPoint.Equals(endFirstLine))
+                throw new ArgumentException("textRefPoint is equal to endFirstLine.");
+            
+            if(textRefPoint.Equals(startSecondLine))
+                throw new ArgumentException("textRefPoint is equal to startSecondLine.");
+            
+            if(textRefPoint.Equals(endSecondLine))
+                throw new ArgumentException("textRefPoint is equal to endSecondLine.");
+        }
 
         /// <summary>
         /// Creates a new Angular2LineDimension that is a copy of the current instance.
