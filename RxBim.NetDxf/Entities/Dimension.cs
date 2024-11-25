@@ -111,7 +111,6 @@ namespace netDxf.Entities
         private double lineSpacing;
         private double elevation;
         private readonly DimensionStyleOverrideDictionary styleOverrides;
-        private bool userTextPosition;
 
         #endregion
 
@@ -161,11 +160,7 @@ namespace netDxf.Entities
         /// <summary>
         /// Gets or sets if the text reference point has been set by the user. Set to false to reset the dimension text to its original position.
         /// </summary>
-        public bool TextPositionManuallySet
-        {
-            get { return this.userTextPosition; }
-            set { this.userTextPosition = value; }
-        }
+        public bool TextPositionManuallySet { get; set; }
 
         /// <summary>
         /// Gets or sets the text reference <see cref="Vector2">position</see>, the middle point of dimension text in local coordinates.
@@ -178,12 +173,8 @@ namespace netDxf.Entities
         /// </remarks>
         public Vector2 TextReferencePoint
         {
-            get { return this.textRefPoint; }
-            set
-            {
-                this.userTextPosition = true;
-                this.textRefPoint = value;
-            }
+            get => this.textRefPoint;
+            set => this.textRefPoint = value;
         }
 
         /// <summary>
