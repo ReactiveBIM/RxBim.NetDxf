@@ -348,21 +348,6 @@ namespace netDxf.Entities
         {
             return DimensionBlock.Build(this, name);
         }
-        
-        /// <summary>
-        /// Validates data
-        /// </summary>
-        protected override void Validate()
-        {
-            if(firstRefPoint.Equals(secondRefPoint))
-                throw new ArgumentException("First point is equal to second Point.");
-            
-            if(textRefPoint.Equals(firstRefPoint))
-                throw new ArgumentException("textRefPoint is equal to firstRefPoint.");
-            
-            if(textRefPoint.Equals(secondRefPoint))
-                throw new ArgumentException("textRefPoint is equal to secondRefPoint.");
-        }
 
         /// <summary>
         /// Creates a new AlignedDimension that is a copy of the current instance.
