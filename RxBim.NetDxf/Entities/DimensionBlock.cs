@@ -790,8 +790,7 @@ namespace netDxf.Entities
                 }
             }
 
-            dim.TextReferencePoint = textRef + gap * vec;
-            dim.TextPositionManuallySet = false;
+            dim.SetTextReferencePoint(textRef + gap * vec);
 
             // drawing block
             return new Block(name, entities, null, false) {Flags = BlockTypeFlags.AnonymousBlock};
@@ -886,7 +885,7 @@ namespace netDxf.Entities
                     {
                         var newRefPoint = middlePoint +
                                           dirRef1 * (2 * style.ExtLineExtend + style.TextOffset + style.TextHeight / 2);
-                        dim.TextReferencePoint = newRefPoint;
+                        dim.SetTextReferencePoint(newRefPoint);
                     }
 
                     var thirdVector2 = Vector2.Normalize(dimRef2 - middlePoint);
@@ -908,7 +907,7 @@ namespace netDxf.Entities
                 }
                 else
                 {
-                    dim.TextReferencePoint += gap * vec;
+                    dim.SetTextReferencePoint(dim.TextReferencePoint + gap * vec);
                     entities.Add(mText);
                 }
             }
@@ -1034,8 +1033,7 @@ namespace netDxf.Entities
                 entities.Add(mText);
             }
 
-            dim.TextReferencePoint = position;
-            dim.TextPositionManuallySet = false;
+            dim.SetTextReferencePoint(position);
 
             // drawing block
             return new Block(name, entities, null, false) {Flags = BlockTypeFlags.AnonymousBlock};
@@ -1148,8 +1146,7 @@ namespace netDxf.Entities
                 entities.Add(mText);
             }
 
-            dim.TextReferencePoint = position;
-            dim.TextPositionManuallySet = false;
+            dim.SetTextReferencePoint(position);
 
             // drawing block
             return new Block(name, entities, null, false) { Flags = BlockTypeFlags.AnonymousBlock };
@@ -1267,8 +1264,7 @@ namespace netDxf.Entities
                 entities.Add(mText);
             }
 
-            dim.TextReferencePoint = textPos;
-            dim.TextPositionManuallySet = false;
+            dim.SetTextReferencePoint(textPos);
 
             return new Block(name, entities, null, false) {Flags = BlockTypeFlags.AnonymousBlock};
         }
@@ -1378,8 +1374,7 @@ namespace netDxf.Entities
                 entities.Add(mText);
             }
 
-            dim.TextReferencePoint = textPos;
-            dim.TextPositionManuallySet = false;
+            dim.SetTextReferencePoint(textPos);
 
             return new Block(name, entities, null, false) {Flags = BlockTypeFlags.AnonymousBlock};
 
@@ -1481,8 +1476,7 @@ namespace netDxf.Entities
                 entities.Add(mText);
             }
 
-            dim.TextReferencePoint = midText;
-            dim.TextPositionManuallySet = false;
+            dim.SetTextReferencePoint(midText);
 
             // drawing block
             return new Block(name, entities, null, false) {Flags = BlockTypeFlags.AnonymousBlock};
@@ -1596,8 +1590,7 @@ namespace netDxf.Entities
                 entities.Add(mText);
             }
 
-            dim.TextReferencePoint = position;
-            dim.TextPositionManuallySet = false;
+            dim.SetTextReferencePoint(position);
 
             // drawing block
             return new Block(name, entities, null, false) { Flags = BlockTypeFlags.AnonymousBlock };
