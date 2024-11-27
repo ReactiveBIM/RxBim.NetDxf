@@ -111,6 +111,7 @@ namespace netDxf.Entities
         private double lineSpacing;
         private double elevation;
         private readonly DimensionStyleOverrideDictionary styleOverrides;
+        private bool userTextPosition;
 
         #endregion
 
@@ -160,7 +161,15 @@ namespace netDxf.Entities
         /// <summary>
         /// Gets or sets if the text reference point has been set by the user. Set to false to reset the dimension text to its original position.
         /// </summary>
-        public bool TextPositionManuallySet { get; set; }
+        /// <remarks>
+        /// Attention! This method returns the value of the <see cref="userTextPosition"/> field,
+        /// which can be changed when the <see cref="TextReferencePoint"/> is set
+        /// </remarks>
+        public bool TextPositionManuallySet
+        {
+            get => userTextPosition;
+            set => userTextPosition = value;
+        }
 
         /// <summary>
         /// Gets or sets the text reference <see cref="Vector2">position</see>, the middle point of dimension text in local coordinates.
@@ -170,11 +179,16 @@ namespace netDxf.Entities
         /// If the style FitTextMove is set to BesidesDimLine the text reference point will take precedence over the offset value to place the dimension line.
         /// In case of Ordinate dimensions if the text has been manually set the text position will take precedence over the EndLeaderPoint only if FitTextMove
         /// has been set to OverDimLineWithoutLeader.
+        /// Attention! this method sets TextReferencePoint = true!
         /// </remarks>
         public Vector2 TextReferencePoint
         {
-            get => this.textRefPoint;
-            set => this.textRefPoint = value;
+            get => textRefPoint;
+            set
+            {
+                userTextPosition = true;
+                textRefPoint = value;
+            }
         }
 
         /// <summary>
@@ -350,6 +364,14 @@ namespace netDxf.Entities
         }
 
         #endregion
+
+        /// <summary>
+        /// Changes <see cref="textRefPoint"/> without changing the  <see cref="userTextPosition"/>>
+        /// </summary>
+        internal void SetTextReferencePoint(Vector2 point)
+        {
+            textRefPoint = point;
+        }
 
         #region Dimension style overrides events
 
