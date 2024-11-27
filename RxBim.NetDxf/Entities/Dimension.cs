@@ -179,7 +179,7 @@ namespace netDxf.Entities
         /// If the style FitTextMove is set to BesidesDimLine the text reference point will take precedence over the offset value to place the dimension line.
         /// In case of Ordinate dimensions if the text has been manually set the text position will take precedence over the EndLeaderPoint only if FitTextMove
         /// has been set to OverDimLineWithoutLeader.
-        /// Attention! this method sets TextReferencePoint = true!
+        /// Attention! this property sets <see cref="userTextPosition"/> = true!
         /// </remarks>
         public Vector2 TextReferencePoint
         {
@@ -365,13 +365,17 @@ namespace netDxf.Entities
 
         #endregion
 
+        #region internal methods
+        
         /// <summary>
-        /// Changes <see cref="textRefPoint"/> without changing the  <see cref="userTextPosition"/>>
+        /// Changes <see cref="textRefPoint"/> without changing the <see cref="userTextPosition"/>>
         /// </summary>
         internal void SetTextReferencePoint(Vector2 point)
         {
             textRefPoint = point;
         }
+        
+        #endregion
 
         #region Dimension style overrides events
 
