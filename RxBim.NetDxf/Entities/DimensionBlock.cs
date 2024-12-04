@@ -876,12 +876,13 @@ namespace netDxf.Entities
             
             if (mText != null)
             {
-                if (((dim.TextPositionManuallySet &&
-                     !IsPointOnSegment(dim.FirstReferencePoint, dim.SecondReferencePoint, dim.TextReferencePoint))
-                    || measure <= textWidth) &&
+                var textPositionSetOutsideTheDimensionLine = 
+                    dim.TextPositionManuallySet &&
+                    !IsPointOnSegment(dim.FirstReferencePoint, dim.SecondReferencePoint, dim.TextReferencePoint);
+                if ((textPositionSetOutsideTheDimensionLine || measure <= textWidth) &&
                     style.FitTextMove == DimensionStyleFitTextMove.OverDimLineWithLeader)
                 {
-                    if (measure <= textWidth)
+                    if (measure <= textWidth && !dim.TextPositionManuallySet)
                     {
                         var newRefPoint = middlePoint +
                                           dirRef1 * (2 * style.ExtLineExtend + style.TextOffset + style.TextHeight / 2);
