@@ -876,12 +876,13 @@ namespace netDxf.Entities
             
             if (mText != null)
             {
-                if (((dim.TextPositionManuallySet &&
-                     !IsPointOnSegment(dim.FirstReferencePoint, dim.SecondReferencePoint, dim.TextReferencePoint))
-                    || measure <= textWidth) &&
+                var textPositionSetOutsideTheDimensionLine = 
+                    dim.TextPositionManuallySet &&
+                    !IsPointOnSegment(dim.FirstReferencePoint, dim.SecondReferencePoint, dim.TextReferencePoint);
+                if ((textPositionSetOutsideTheDimensionLine || measure <= textWidth) &&
                     style.FitTextMove == DimensionStyleFitTextMove.OverDimLineWithLeader)
                 {
-                    if (measure <= textWidth)
+                    if (measure <= textWidth && !dim.TextPositionManuallySet)
                     {
                         var newRefPoint = middlePoint +
                                           dirRef1 * (2 * style.ExtLineExtend + style.TextOffset + style.TextHeight / 2);
@@ -902,12 +903,16 @@ namespace netDxf.Entities
                     var mTextPosition = Vector2.MidPoint(dim.TextReferencePoint, thirdVertex) + gap * vec;
 
                     mText.Position = new Vector3(mTextPosition.X, mTextPosition.Y, 0.0);
-                    mText.AttachmentPoint = MTextAttachmentPoint.BottomCenter;
                     entities.Add(mText);
                 }
                 else
                 {
-                    dim.SetTextReferencePoint(dim.TextReferencePoint + gap * vec);
+                    if (dim.TextPositionManuallySet)
+                    {
+                        var position = dim.TextReferencePoint + (dimRef1 - dim.FirstReferencePoint) + gap * vec;
+                        mText.Position = new Vector3(position.X, position.Y, 0.0);
+                    }
+
                     entities.Add(mText);
                 }
             }
@@ -1708,18 +1713,26 @@ namespace netDxf.Entities
         
         private static bool IsPointOnSegment(Vector2 startPoint, Vector2 endPoint, Vector2 p)
         {
+            const float toleranceRatio = 0.01f;
             double crossProduct = (p.Y - startPoint.Y) * (endPoint.X - startPoint.X) -
                                   (p.X - startPoint.X) * (endPoint.Y - startPoint.Y);
 
-            if (Math.Abs(crossProduct) > Double.Epsilon)
+            var tolerance = toleranceRatio * Vector2.Distance(startPoint, endPoint);
+            
+            // check is point on line.
+            if (Math.Abs(crossProduct) > tolerance)
             {
                 return false;
             }
+            
+            // check is point on segment.
+            if (p.X < Math.Min(startPoint.X, endPoint.X) - tolerance || p.X > Math.Max(startPoint.X, endPoint.X) + tolerance ||
+                p.Y < Math.Min(startPoint.Y, endPoint.Y) - tolerance || p.Y > Math.Max(startPoint.Y, endPoint.Y) + tolerance)
+            {
+                return false; // Если точка вне диапазона отрезка
+            }
 
-            double dotProduct = (p.X - startPoint.X) * (endPoint.X - startPoint.X) +
-                                (p.Y - startPoint.Y) * (endPoint.Y - startPoint.Y);
-            return !(dotProduct < 0 || dotProduct > (endPoint.X - startPoint.X) * (endPoint.X - startPoint.X) +
-                (endPoint.Y - startPoint.Y) * (endPoint.Y - startPoint.Y));
+            return true;
         }
 
 
