@@ -79,3 +79,29 @@ All DXF objects may contain extended data information.
 AutoCad Table entities will be imported as Inserts (block references).
 Both simple and complex line types are supported.
 The library will never be able to read some entities like REGIONs, SURFACEs, and 3DSOLIDs, since they depend on undocumented proprietary data.
+
+## Working with Custom Hatches in DXF Files
+In netDxf, there is a capability to find custom hatches in a DXF file and convert them to PAT format.
+
+Code example:
+
+```c#
+public static void Main()
+{
+	// your DXF file name
+	var dxfFilePath = "sample.dxf";
+    
+    // your PAT file name that will be created
+	var patFilePath = "custom_hatch.pat";
+    
+    // The displayed name of the hatch that can be seen in any DXF viewer 
+    // (such as AutoCAD) when viewing hatch properties.
+    var dxfHatchName = "FP_1";
+    
+    // The name of the hatch that will be generated in the PAT file.
+    var patHatchName = "MYHATCH";
+    
+    var patFetcher = new PatFromDxfFetcher();
+    patFetcher.FetchPat(dxfFilePath, patFilePath, dxfHatchName, patHatchName);
+}
+```

@@ -14,6 +14,7 @@ using netDxf.Header;
 using netDxf.Objects;
 using netDxf.Tables;
 using netDxf.Units;
+using netDxf.Utils;
 using Attribute = netDxf.Entities.Attribute;
 using FontStyle = netDxf.Tables.FontStyle;
 using Image = netDxf.Entities.Image;
@@ -281,6 +282,12 @@ namespace TestDxfDocument
             //SpeedTest();
             //WritePolyline3d();
             //WriteInsert();
+
+            #endregion
+            
+            #region Samples for dxf hatch to pat conversion
+
+            //TextPatFromDxfFetcher();
 
             #endregion
         }
@@ -8870,6 +8877,24 @@ namespace TestDxfDocument
             ////doc.Entities.Add(ins3);
 
             //doc.Save("BlockAttributeTransformation.dxf");
+        }
+        
+        private static void TextPatFromDxfFetcher()
+        {
+            // your DXF file name
+            var dxfFilePath = "userHatch.dxf";
+    
+            // your PAT file name that will be created
+            var patFilePath = "custom_hatch.pat";
+    
+            // The displayed name of the hatch that can be seen in any DXF viewer 
+            // (such as AutoCAD) when viewing hatch properties.
+            var dxfHatchName = "FP_1";
+    
+            // The name of the hatch that will be generated in the PAT file.
+            var patHatchName = "MYHATCH";
+            var patFromDxfFetcher = new PatFromDxfFetcher();
+            patFromDxfFetcher.FetchPat(dxfFilePath, patFilePath, dxfHatchName, patHatchName);
         }
     }
 }

@@ -21,11 +21,11 @@ public class PatFromDxfFetcher
     /// Extracts the content of the pat file from a Stream containing a dxf file.
     /// </summary>
     /// <param name="dxfDocument">Stream containing the dxf file.</param>
-    /// <param name="hatchNameFromDxf">Hatch name from the dxf file.</param>
-    /// <param name="newHatchName">New hatch name.</param>
-    public Stream FetchPat(Stream dxfDocument, string hatchNameFromDxf, string newHatchName)
+    /// <param name="dxfHatchName">Hatch name from the dxf file.</param>
+    /// <param name="patHatchName">New hatch name in pat file.</param>
+    public Stream FetchPat(Stream dxfDocument, string dxfHatchName, string patHatchName)
     {
-        var hatchPattern = GetHatchPattern(dxfDocument, hatchNameFromDxf, newHatchName);
+        var hatchPattern = GetHatchPattern(dxfDocument, dxfHatchName, patHatchName);
         var memoryStream = new MemoryStream();
         using var streamWriter = new StreamWriter(memoryStream);
         foreach (var hatchLine in hatchPattern)
@@ -41,12 +41,12 @@ public class PatFromDxfFetcher
     /// </summary>
     /// <param name="dxfFilePath">Dxf file path.</param>
     /// <param name="patFilePath">Pat file path.</param>
-    /// <param name="hatchNameFromDxf">Hatch name from the dxf file.</param>
-    /// <param name="newHatchName">New hatch name.</param>
-    public void FetchPat(string dxfFilePath, string patFilePath, string hatchNameFromDxf, string newHatchName)
+    /// <param name="dxfHatchName">Hatch name from the dxf file.</param>
+    /// <param name="patHatchName">New hatch name in pat file.</param>
+    public void FetchPat(string dxfFilePath, string patFilePath, string dxfHatchName, string patHatchName)
     {
         using var fsSource = new FileStream(dxfFilePath, FileMode.Open, FileAccess.Read);
-        var hatchPattern = GetHatchPattern(fsSource, hatchNameFromDxf, newHatchName);
+        var hatchPattern = GetHatchPattern(fsSource, dxfHatchName, patHatchName);
         using var streamWriter = new StreamWriter(patFilePath);
         foreach (var hatchLine in hatchPattern)
         {
@@ -54,13 +54,13 @@ public class PatFromDxfFetcher
         }
     }
 
-    private List<string> GetHatchPattern(Stream dxfStream, string hatchNameFromDxf, string newHatchName)
+    private List<string> GetHatchPattern(Stream dxfStream, string dxfHatchName, string patHatchName)
     {
-        var res = new List<string> { GenerateName(newHatchName) };
+        var res = new List<string> { GenerateName(patHatchName) };
 
         var lines = ReadLines(new StreamReader(dxfStream));
         var linesEnumerator = lines.GetEnumerator();
-        MoveToHatchLabel(hatchNameFromDxf, linesEnumerator);
+        MoveToHatchLabel(dxfHatchName, linesEnumerator);
         var hatchPatternLinesCount = GetHatchPatternLines(linesEnumerator);
 
         linesEnumerator.MoveNext();
@@ -72,12 +72,12 @@ public class PatFromDxfFetcher
         return res;
     }
 
-    private void MoveToHatchLabel(string hatchNameFromDxf, IEnumerator<string> linesEnumerator)
+    private void MoveToHatchLabel(string dxfHatchName, IEnumerator<string> linesEnumerator)
     {
         while (linesEnumerator.MoveNext())
         {
             var current = GetCurrentOrThrow(linesEnumerator).Trim();
-            if (current == hatchNameFromDxf)
+            if (current == dxfHatchName)
             {
                 break;
             }
@@ -146,7 +146,7 @@ public class PatFromDxfFetcher
         return floatVal;
     }
 
-    private string GenerateName(string newHatchName) => $"*{newHatchName}, description placeholder";
+    private string GenerateName(string patHatchName) => $"*{patHatchName}, description placeholder";
 
     private IEnumerable<string> ReadLines(StreamReader streamReader)
     {
