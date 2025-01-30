@@ -88,11 +88,11 @@ Code example:
 ```c#
 public static void Main()
 {
-	// your DXF file name
-	var dxfFilePath = "sample.dxf";
+    // your DXF file name
+    var dxfFilePath = "sample.dxf";
     
     // your PAT file name that will be created
-	var patFilePath = "custom_hatch.pat";
+    var patFilePath = "custom_hatch.pat";
     
     // The displayed name of the hatch that can be seen in any DXF viewer 
     // (such as AutoCAD) when viewing hatch properties.
