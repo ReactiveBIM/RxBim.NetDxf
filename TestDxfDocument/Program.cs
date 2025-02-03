@@ -8884,9 +8884,6 @@ namespace TestDxfDocument
             // your DXF file name
             var dxfFilePath = "userHatch.dxf";
     
-            // your PAT file name that will be created
-            var patFilePath = "custom_hatch.pat";
-    
             // The displayed name of the hatch that can be seen in any DXF viewer 
             // (such as AutoCAD) when viewing hatch properties.
             var dxfHatchName = "FP_1";
@@ -8894,7 +8891,7 @@ namespace TestDxfDocument
             // The name of the hatch that will be generated in the PAT file.
             var patHatchName = "MYHATCH";
             var patFromDxfFetcher = new PatFromDxfFetcher();
-            patFromDxfFetcher.FetchPat(dxfFilePath, patFilePath, dxfHatchName, patHatchName);
+            patFromDxfFetcher.FetchPat(dxfFilePath, dxfHatchName, patHatchName);
         }
     }
 }

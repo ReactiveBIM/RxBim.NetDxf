@@ -40,11 +40,12 @@ public class PatFromDxfFetcher
     /// Extracts the content of the pat file from a dxf file and put it to specified file.
     /// </summary>
     /// <param name="dxfFilePath">Dxf file path.</param>
-    /// <param name="patFilePath">Pat file path.</param>
     /// <param name="dxfHatchName">Hatch name from the dxf file.</param>
     /// <param name="patHatchName">New hatch name in pat file.</param>
-    public void FetchPat(string dxfFilePath, string patFilePath, string dxfHatchName, string patHatchName)
+    /// <param name="patFilePath">Pat file path. {patHatchName}.pat will be used if value is null</param>
+    public void FetchPat(string dxfFilePath, string dxfHatchName, string patHatchName, string patFilePath = null)
     {
+        patFilePath ??= $"{patHatchName}.pat";
         using var fsSource = new FileStream(dxfFilePath, FileMode.Open, FileAccess.Read);
         var hatchPattern = GetHatchPattern(fsSource, dxfHatchName, patHatchName);
         using var streamWriter = new StreamWriter(patFilePath);
