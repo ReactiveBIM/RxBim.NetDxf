@@ -878,7 +878,7 @@ namespace netDxf.Entities
             {
                 var textPositionSetOutsideTheDimensionLine = 
                     dim.TextPositionManuallySet &&
-                    !IsPointOnSegment(dim.FirstReferencePoint, dim.SecondReferencePoint, dim.TextReferencePoint);
+                    !IsPointOnSegment(dimRef1, dimRef2, dim.TextReferencePoint);
                 if ((textPositionSetOutsideTheDimensionLine || measure <= textWidth) &&
                     style.FitTextMove == DimensionStyleFitTextMove.OverDimLineWithLeader)
                 {
@@ -909,7 +909,7 @@ namespace netDxf.Entities
                 {
                     if (dim.TextPositionManuallySet)
                     {
-                        var position = dim.TextReferencePoint + (dimRef1 - dim.FirstReferencePoint) + gap * vec;
+                        var position = dim.TextReferencePoint + gap * vec;
                         mText.Position = new Vector3(position.X, position.Y, 0.0);
                     }
 
